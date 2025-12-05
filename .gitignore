@@ -24,6 +24,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -31,3 +32,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code settings
+.claude/settings.local.json
+
+# mcp configuration (if it contains sensitive info)
+.mcp.json
+
+# temporary files
+nul

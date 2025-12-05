@@ -23,86 +23,111 @@ function initializeSampleData(): void {
     const sampleDevices: Device[] = [
       {
         id: generateId(),
-        jenisDevice: "Laptop",
-        merek: "Dell",
-        model: "Latitude 5420",
-        serialNumber: "DL-LAT-001",
-        kondisi: "Baik",
-        pengguna: "Ahmad Rizki",
-        divisi: "IT Support",
-        spesifikasi: "Intel Core i5-1145G7, 16GB RAM, 512GB SSD",
-        tanggalPembelian: "2023-01-15",
-        nilaiAset: 15000000,
+        kodeId: "INV-07-001-23",
+        jenisBarang: "Laptop",
+        tanggalBeli: "2023-01-15",
+        garansi: 36,
+        garansiSampai: "2026-01-15",
         lokasi: "Kantor Pusat - Lt. 3",
-        catatan: "Laptop untuk developer",
+        devisi: "IT",
+        subDevisi: "Ahmad Rizki",
+        merk: "Dell",
+        type: "Latitude 5420",
+        snRegModel: "DL-LAT-001",
+        spesifikasi: "Intel Core i5-1145G7, 16GB RAM, 512GB SSD",
+        gambar: "",
+        status: "Aktif",
+        kondisi: "Baik",
+        akunTerhubung: "ahmad.rizki@company.com",
+        keterangan: "Laptop untuk developer",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
       {
         id: generateId(),
-        jenisDevice: "Monitor",
-        merek: "LG",
-        model: "24MK430H",
-        serialNumber: "LG-MON-045",
-        kondisi: "Baik",
-        pengguna: "Siti Nurhaliza",
-        divisi: "Finance",
-        spesifikasi: "24 inch, Full HD, IPS Panel",
-        tanggalPembelian: "2022-08-10",
-        nilaiAset: 2500000,
+        kodeId: "INV-01-001-24",
+        jenisBarang: "Monitor",
+        tanggalBeli: "2024-08-10",
+        garansi: 24,
+        garansiSampai: "2026-08-10",
         lokasi: "Kantor Pusat - Lt. 2",
-        catatan: "Monitor tambahan untuk pekerjaan spreadsheet",
-        tanggalDibuat: getCurrentTimestamp(),
-        tanggalDiupdate: getCurrentTimestamp(),
-      },
-      {
-        id: generateId(),
-        jenisDevice: "Printer",
-        merek: "HP",
-        model: "LaserJet Pro M404dn",
-        serialNumber: "HP-PRN-012",
-        kondisi: "Dalam Perbaikan",
-        pengguna: "Bersama",
-        divisi: "General Office",
-        spesifikasi: "Laser Printer, A4, Network",
-        tanggalPembelian: "2021-05-20",
-        nilaiAset: 4500000,
-        lokasi: "Kantor Pusat - Lt. 1",
-        catatan: "Paper jam, sedang diperbaiki teknisi",
-        tanggalDibuat: getCurrentTimestamp(),
-        tanggalDiupdate: getCurrentTimestamp(),
-      },
-      {
-        id: generateId(),
-        jenisDevice: "Router",
-        merek: "Cisco",
-        model: "RV340",
-        serialNumber: "CS-RTR-003",
+        devisi: "FIN",
+        subDevisi: "Siti Nurhaliza",
+        merk: "LG",
+        type: "24MK430H",
+        snRegModel: "LG-MON-045",
+        spesifikasi: "24 inch, Full HD, IPS Panel",
+        gambar: "",
+        status: "Aktif",
         kondisi: "Baik",
-        pengguna: "Network Admin",
-        divisi: "IT Support",
-        spesifikasi: "Dual WAN, VPN, 4 Port Gigabit",
-        tanggalPembelian: "2022-03-12",
-        nilaiAset: 8500000,
-        lokasi: "Server Room",
-        catatan: "Router utama kantor",
+        akunTerhubung: "siti.nurhaliza@company.com",
+        keterangan: "Monitor tambahan untuk pekerjaan spreadsheet",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
       {
         id: generateId(),
-        jenisDevice: "Computer",
-        merek: "HP",
-        model: "ProDesk 400 G7",
-        serialNumber: "HP-PC-088",
-        kondisi: "Tidak Terpakai",
-        pengguna: "-",
-        divisi: "-",
-        spesifikasi: "Intel Core i3-10100, 8GB RAM, 256GB SSD",
-        tanggalPembelian: "2020-11-05",
-        nilaiAset: 7000000,
+        kodeId: "INV-09-001-21",
+        jenisBarang: "Printer",
+        tanggalBeli: "2021-05-20",
+        garansi: 12,
+        garansiSampai: "2022-05-20",
+        lokasi: "Kantor Pusat - Lt. 1",
+        devisi: "ADM",
+        subDevisi: "Bersama",
+        merk: "HP",
+        type: "LaserJet Pro M404dn",
+        snRegModel: "HP-PRN-012",
+        spesifikasi: "Laser Printer, A4, Network",
+        gambar: "",
+        status: "Dalam Perbaikan",
+        kondisi: "Dalam Perbaikan",
+        akunTerhubung: "",
+        keterangan: "Paper jam, sedang diperbaiki teknisi",
+        tanggalDibuat: getCurrentTimestamp(),
+        tanggalDiupdate: getCurrentTimestamp(),
+      },
+      {
+        id: generateId(),
+        kodeId: "INV-13-001-22",
+        jenisBarang: "Router",
+        tanggalBeli: "2022-03-12",
+        garansi: 36,
+        garansiSampai: "2025-03-12",
+        lokasi: "Server Room",
+        devisi: "IT",
+        subDevisi: "Network Admin",
+        merk: "Cisco",
+        type: "RV340",
+        snRegModel: "CS-RTR-003",
+        spesifikasi: "Dual WAN, VPN, 4 Port Gigabit",
+        gambar: "",
+        status: "Aktif",
+        kondisi: "Baik",
+        akunTerhubung: "",
+        keterangan: "Router utama kantor",
+        tanggalDibuat: getCurrentTimestamp(),
+        tanggalDiupdate: getCurrentTimestamp(),
+      },
+      {
+        id: generateId(),
+        kodeId: "INV-02-001-20",
+        jenisBarang: "PC",
+        tanggalBeli: "2020-11-05",
+        garansi: 24,
+        garansiSampai: "2022-11-05",
         lokasi: "Gudang IT - Rak B3",
-        catatan: "Cadangan, kondisi baik namun tidak digunakan",
+        devisi: "IT",
+        subDevisi: "-",
+        merk: "HP",
+        type: "ProDesk 400 G7",
+        snRegModel: "HP-PC-088",
+        spesifikasi: "Intel Core i3-10100, 8GB RAM, 256GB SSD",
+        gambar: "",
+        status: "Tidak Aktif",
+        kondisi: "Tidak Terpakai",
+        akunTerhubung: "",
+        keterangan: "Cadangan, kondisi baik namun tidak digunakan",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
@@ -184,14 +209,16 @@ export function searchDevices(query: string): Device[] {
   }
 
   return devices.filter(device =>
-    device.jenisDevice.toLowerCase().includes(lowerQuery) ||
-    device.merek.toLowerCase().includes(lowerQuery) ||
-    device.model.toLowerCase().includes(lowerQuery) ||
-    device.serialNumber.toLowerCase().includes(lowerQuery) ||
-    device.pengguna.toLowerCase().includes(lowerQuery) ||
-    device.divisi.toLowerCase().includes(lowerQuery) ||
+    device.kodeId.toLowerCase().includes(lowerQuery) ||
+    device.jenisBarang.toLowerCase().includes(lowerQuery) ||
+    device.merk.toLowerCase().includes(lowerQuery) ||
+    device.type.toLowerCase().includes(lowerQuery) ||
+    device.snRegModel.toLowerCase().includes(lowerQuery) ||
+    device.subDevisi.toLowerCase().includes(lowerQuery) ||
+    device.devisi.toLowerCase().includes(lowerQuery) ||
     device.spesifikasi.toLowerCase().includes(lowerQuery) ||
-    device.lokasi.toLowerCase().includes(lowerQuery)
+    device.lokasi.toLowerCase().includes(lowerQuery) ||
+    device.akunTerhubung.toLowerCase().includes(lowerQuery)
   );
 }
 
@@ -203,10 +230,13 @@ export function filterDevices(filters: DeviceFilters): Device[] {
     if (filters.kondisi && filters.kondisi !== "all" && device.kondisi !== filters.kondisi) {
       return false;
     }
-    if (filters.divisi && filters.divisi !== "all" && device.divisi !== filters.divisi) {
+    if (filters.devisi && filters.devisi !== "all" && device.devisi !== filters.devisi) {
       return false;
     }
-    if (filters.jenisDevice && filters.jenisDevice !== "all" && device.jenisDevice !== filters.jenisDevice) {
+    if (filters.jenisBarang && filters.jenisBarang !== "all" && device.jenisBarang !== filters.jenisBarang) {
+      return false;
+    }
+    if (filters.status && filters.status !== "all" && device.status !== filters.status) {
       return false;
     }
     return true;

@@ -1,25 +1,37 @@
 export type DeviceKondisi = "Baik" | "Rusak" | "Dalam Perbaikan" | "Tidak Terpakai";
+export type DeviceStatus = "Aktif" | "Tidak Aktif" | "Dalam Perbaikan" | "Menunggu Approval";
+
+export interface KodeItem {
+  kode: string; // Kode item (01, 02, 03, etc)
+  nama: string; // Nama item (Monitor, PC, UPS, etc)
+}
 
 export interface Device {
   id: string;
-  jenisDevice: string; // Computer, Laptop, Monitor, Printer, Router, Switch, Server, Tablet, Smartphone, dll
-  merek: string;
-  model: string;
-  serialNumber: string;
-  kondisi: DeviceKondisi;
-  pengguna: string;
-  divisi: string;
-  spesifikasi: string;
-  tanggalPembelian: string;
-  nilaiAset: number;
+  kodeId: string; // Kode ID format: INV-01-001-25
+  jenisBarang: string; // Jenis Barang (Monitor, PC, UPS, dll)
+  tanggalBeli: string; // Tanggal Beli
+  garansi: number; // Garansi dalam bulan
+  garansiSampai: string; // Tanggal garansi berakhir (dihitung otomatis)
   lokasi: string;
-  catatan: string;
+  devisi: string; // Divisi
+  subDevisi: string; // Sub Devisi / Pengguna
+  merk: string;
+  type: string; // Type barang
+  snRegModel: string; // SN / Reg Model
+  spesifikasi: string;
+  gambar: string; // URL atau path gambar
+  status: DeviceStatus;
+  kondisi: DeviceKondisi;
+  akunTerhubung: string; // Akun Terhubung
+  keterangan: string; // Keterangan tambahan
   tanggalDibuat: string;
   tanggalDiupdate: string;
 }
 
 export interface DeviceFilters {
-  kondisi?: string;
-  divisi?: string;
-  jenisDevice?: string;
+  kondisi?: string | "all";
+  devisi?: string | "all";
+  jenisBarang?: string | "all";
+  status?: string | "all";
 }

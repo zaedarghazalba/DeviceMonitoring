@@ -1,36 +1,20 @@
 "use client"
 
-import React, { useState } from "react"
-import { Device, DeviceKondisi } from "@/lib/types"
+import React, { useState, useEffect } from "react"
+import { Device, DeviceKondisi, DeviceStatus } from "@/lib/types"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Select } from "./ui/select"
+import { getAllKodeItems, getAllDivisi, generateKodeId } from "@/lib/kode-item"
+import { getAllDevices } from "@/lib/storage"
+import { Loader2, Image as ImageIcon, X, Check } from "lucide-react"
 
 interface DeviceFormProps {
   device?: Device
   onSubmit: (data: Omit<Device, "id" | "tanggalDibuat" | "tanggalDiupdate">) => void
   onCancel: () => void
 }
-
-const jenisDeviceOptions = [
-  "Computer",
-  "Laptop",
-  "Monitor",
-  "Printer",
-  "Router",
-  "Switch",
-  "Server",
-  "Tablet",
-  "Smartphone",
-  "Keyboard",
-  "Mouse",
-  "Scanner",
-  "Webcam",
-  "Headset",
-  "UPS",
-  "Lainnya",
-]
 
 const kondisiOptions: DeviceKondisi[] = [
   "Baik",
@@ -39,23 +23,66 @@ const kondisiOptions: DeviceKondisi[] = [
   "Tidak Terpakai",
 ]
 
+const statusOptions: DeviceStatus[] = [
+  "Aktif",
+  "Tidak Aktif",
+  "Dalam Perbaikan",
+  "Menunggu Approval",
+]
+
 export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
+  const [kodeItems, setKodeItems] = useState(getAllKodeItems())
+  const [divisiList, setDivisiList] = useState(getAllDivisi())
+  const [selectedKodeItem, setSelectedKodeItem] = useState("")
+  const [imagePreview, setImagePreview] = useState<string>(device?.gambar || "")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [formData, setFormData] = useState({
-    jenisDevice: device?.jenisDevice || "",
-    merek: device?.merek || "",
-    model: device?.model || "",
-    serialNumber: device?.serialNumber || "",
-    kondisi: device?.kondisi || ("Baik" as DeviceKondisi),
-    pengguna: device?.pengguna || "",
-    divisi: device?.divisi || "",
-    spesifikasi: device?.spesifikasi || "",
-    tanggalPembelian: device?.tanggalPembelian || "",
-    nilaiAset: device?.nilaiAset || 0,
+    kodeId: device?.kodeId || "",
+    jenisBarang: device?.jenisBarang || "",
+    tanggalBeli: device?.tanggalBeli || "",
+    garansi: device?.garansi || 0,
+    garansiSampai: device?.garansiSampai || "",
     lokasi: device?.lokasi || "",
-    catatan: device?.catatan || "",
+    devisi: device?.devisi || "",
+    subDevisi: device?.subDevisi || "",
+    merk: device?.merk || "",
+    type: device?.type || "",
+    snRegModel: device?.snRegModel || "",
+    spesifikasi: device?.spesifikasi || "",
+    gambar: device?.gambar || "",
+    status: device?.status || ("Aktif" as DeviceStatus),
+    kondisi: device?.kondisi || ("Baik" as DeviceKondisi),
+    akunTerhubung: device?.akunTerhubung || "",
+    keterangan: device?.keterangan || "",
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Auto-generate Kode ID when jenisBarang or tanggalBeli changes (only for new device)
+  useEffect(() => {
+    if (!device && selectedKodeItem && formData.tanggalBeli) {
+      const existingDevices = getAllDevices()
+      const newKodeId = generateKodeId(selectedKodeItem, existingDevices, formData.tanggalBeli)
+      setFormData(prev => ({
+        ...prev,
+        kodeId: newKodeId
+      }))
+    }
+  }, [selectedKodeItem, formData.tanggalBeli, device])
+
+  // Auto-calculate garansiSampai when tanggalBeli or garansi changes
+  useEffect(() => {
+    if (formData.tanggalBeli && formData.garansi > 0) {
+      const tanggalBeli = new Date(formData.tanggalBeli)
+      const garansiSampai = new Date(tanggalBeli)
+      garansiSampai.setMonth(garansiSampai.getMonth() + formData.garansi)
+      setFormData(prev => ({
+        ...prev,
+        garansiSampai: garansiSampai.toISOString().split('T')[0]
+      }))
+    }
+  }, [formData.tanggalBeli, formData.garansi])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -63,7 +90,7 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "nilaiAset" ? Number(value) : value,
+      [name]: name === "garansi" ? Number(value) : value,
     }))
     // Clear error when user starts typing
     if (errors[name]) {
@@ -71,244 +98,550 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
     }
   }
 
+  const handleJenisBarangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedNama = e.target.value
+    const kodeItem = kodeItems.find(item => item.nama === selectedNama)
+
+    if (kodeItem) {
+      setSelectedKodeItem(kodeItem.kode)
+      setFormData(prev => ({
+        ...prev,
+        jenisBarang: selectedNama
+      }))
+    }
+
+    if (errors.jenisBarang) {
+      setErrors((prev) => ({ ...prev, jenisBarang: "" }))
+    }
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({ ...prev, gambar: "File harus berupa gambar" }))
+      return
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, gambar: "Ukuran gambar maksimal 2MB" }))
+      return
+    }
+
+    // Convert to base64
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64String = reader.result as string
+      setFormData(prev => ({
+        ...prev,
+        gambar: base64String
+      }))
+      setImagePreview(base64String)
+      setErrors(prev => ({ ...prev, gambar: "" }))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      gambar: ""
+    }))
+    setImagePreview("")
+    // Reset file input
+    const fileInput = document.getElementById('gambar') as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ""
+    }
+  }
+
   const validate = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.jenisDevice.trim()) {
-      newErrors.jenisDevice = "Jenis device wajib diisi"
+    if (!formData.kodeId.trim()) {
+      newErrors.kodeId = "Kode ID wajib diisi"
     }
-    if (!formData.merek.trim()) {
-      newErrors.merek = "Merek wajib diisi"
+    if (!formData.jenisBarang.trim()) {
+      newErrors.jenisBarang = "Jenis barang wajib diisi"
     }
-    if (!formData.model.trim()) {
-      newErrors.model = "Model wajib diisi"
-    }
-    if (!formData.serialNumber.trim()) {
-      newErrors.serialNumber = "Serial number wajib diisi"
-    }
-    if (!formData.divisi.trim()) {
-      newErrors.divisi = "Divisi wajib diisi"
+    if (!formData.tanggalBeli) {
+      newErrors.tanggalBeli = "Tanggal beli wajib diisi"
     }
     if (!formData.lokasi.trim()) {
       newErrors.lokasi = "Lokasi wajib diisi"
     }
-    if (!formData.tanggalPembelian) {
-      newErrors.tanggalPembelian = "Tanggal pembelian wajib diisi"
+    if (!formData.devisi.trim()) {
+      newErrors.devisi = "Devisi wajib diisi"
     }
-    if (formData.nilaiAset <= 0) {
-      newErrors.nilaiAset = "Nilai aset harus lebih dari 0"
+    if (!formData.merk.trim()) {
+      newErrors.merk = "Merk wajib diisi"
+    }
+    if (!formData.type.trim()) {
+      newErrors.type = "Type wajib diisi"
+    }
+    if (!formData.snRegModel.trim()) {
+      newErrors.snRegModel = "SN / Reg Model wajib diisi"
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (validate()) {
-      onSubmit(formData)
+      setIsSubmitting(true)
+      try {
+        await onSubmit(formData)
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="jenisDevice">
-            Jenis Device <span className="text-red-500">*</span>
-          </Label>
-          <Select
-            id="jenisDevice"
-            name="jenisDevice"
-            value={formData.jenisDevice}
-            onChange={handleChange}
-          >
-            <option value="">Pilih jenis device</option>
-            {jenisDeviceOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Select>
-          {errors.jenisDevice && (
-            <p className="text-sm text-red-500">{errors.jenisDevice}</p>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Main Information Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded">
+            <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          </div>
+          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Utama</h3>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="kondisi">
-            Kondisi <span className="text-red-500">*</span>
-          </Label>
-          <Select
-            id="kondisi"
-            name="kondisi"
-            value={formData.kondisi}
-            onChange={handleChange}
-          >
-            {kondisiOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Select>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Jenis Barang */}
+          <div className="space-y-2">
+            <Label htmlFor="jenisBarang" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Jenis Barang <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="jenisBarang"
+              name="jenisBarang"
+              value={formData.jenisBarang}
+              onChange={handleJenisBarangChange}
+              disabled={!!device}
+              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+            >
+              <option value="">Pilih jenis barang</option>
+              {kodeItems.map((item) => (
+                <option key={item.kode} value={item.nama}>
+                  {item.nama}
+                </option>
+              ))}
+            </Select>
+            {errors.jenisBarang && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.jenisBarang}
+              </p>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="merek">
-            Merek <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="merek"
-            name="merek"
-            value={formData.merek}
-            onChange={handleChange}
-            placeholder="Contoh: Dell, HP, Lenovo"
-          />
-          {errors.merek && (
-            <p className="text-sm text-red-500">{errors.merek}</p>
-          )}
-        </div>
+          {/* Kode ID (auto-generated) */}
+          <div className="space-y-2">
+            <Label htmlFor="kodeId" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Kode ID <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="kodeId"
+              name="kodeId"
+              value={formData.kodeId}
+              disabled
+              className="bg-slate-50 dark:bg-slate-900 font-mono border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+              placeholder="Auto-generated: INV-XX-XXX-XX"
+            />
+            {errors.kodeId && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.kodeId}
+              </p>
+            )}
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Format: INV-[Kode Item]-[Urutan]-[Tahun]
+            </p>
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="model">
-            Model <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="model"
-            name="model"
-            value={formData.model}
-            onChange={handleChange}
-            placeholder="Contoh: Latitude 5420"
-          />
-          {errors.model && (
-            <p className="text-sm text-red-500">{errors.model}</p>
-          )}
-        </div>
+          {/* Merk */}
+          <div className="space-y-2">
+            <Label htmlFor="merk" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Merk <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="merk"
+              name="merk"
+              value={formData.merk}
+              onChange={handleChange}
+              placeholder="Contoh: Dell, HP, Lenovo"
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+            {errors.merk && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.merk}
+              </p>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="serialNumber">
-            Serial Number <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="serialNumber"
-            name="serialNumber"
-            value={formData.serialNumber}
-            onChange={handleChange}
-            placeholder="Contoh: DL-LAT-001"
-          />
-          {errors.serialNumber && (
-            <p className="text-sm text-red-500">{errors.serialNumber}</p>
-          )}
-        </div>
+          {/* Type */}
+          <div className="space-y-2">
+            <Label htmlFor="type" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Type <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              placeholder="Contoh: Latitude 5420"
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+            {errors.type && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.type}
+              </p>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="pengguna">Pengguna</Label>
-          <Input
-            id="pengguna"
-            name="pengguna"
-            value={formData.pengguna}
-            onChange={handleChange}
-            placeholder="Nama pengguna"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="divisi">
-            Divisi <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="divisi"
-            name="divisi"
-            value={formData.divisi}
-            onChange={handleChange}
-            placeholder="Contoh: IT Support, Finance"
-          />
-          {errors.divisi && (
-            <p className="text-sm text-red-500">{errors.divisi}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="lokasi">
-            Lokasi <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="lokasi"
-            name="lokasi"
-            value={formData.lokasi}
-            onChange={handleChange}
-            placeholder="Contoh: Kantor Pusat - Lt. 3"
-          />
-          {errors.lokasi && (
-            <p className="text-sm text-red-500">{errors.lokasi}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="tanggalPembelian">
-            Tanggal Pembelian <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="tanggalPembelian"
-            name="tanggalPembelian"
-            type="date"
-            value={formData.tanggalPembelian}
-            onChange={handleChange}
-          />
-          {errors.tanggalPembelian && (
-            <p className="text-sm text-red-500">{errors.tanggalPembelian}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="nilaiAset">
-            Nilai Aset (Rp) <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="nilaiAset"
-            name="nilaiAset"
-            type="number"
-            value={formData.nilaiAset}
-            onChange={handleChange}
-            placeholder="0"
-            min="0"
-          />
-          {errors.nilaiAset && (
-            <p className="text-sm text-red-500">{errors.nilaiAset}</p>
-          )}
+          {/* SN / Reg Model */}
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="snRegModel" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              SN / Reg Model <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="snRegModel"
+              name="snRegModel"
+              value={formData.snRegModel}
+              onChange={handleChange}
+              placeholder="Contoh: DL-LAT-001"
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+            {errors.snRegModel && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.snRegModel}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="spesifikasi">Spesifikasi</Label>
-        <textarea
-          id="spesifikasi"
-          name="spesifikasi"
-          value={formData.spesifikasi}
-          onChange={handleChange}
-          placeholder="Detail spesifikasi teknis"
-          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        />
+      {/* Purchase Information Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded">
+            <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+          </div>
+          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Pembelian</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Tanggal Beli */}
+          <div className="space-y-2">
+            <Label htmlFor="tanggalBeli" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Tanggal Beli <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="tanggalBeli"
+              name="tanggalBeli"
+              type="date"
+              value={formData.tanggalBeli}
+              onChange={handleChange}
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+            {errors.tanggalBeli && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.tanggalBeli}
+              </p>
+            )}
+          </div>
+
+          {/* Garansi (bulan) */}
+          <div className="space-y-2">
+            <Label htmlFor="garansi" className="text-sm font-medium text-slate-700 dark:text-slate-300">Garansi (bulan)</Label>
+            <Input
+              id="garansi"
+              name="garansi"
+              type="number"
+              value={formData.garansi}
+              onChange={handleChange}
+              placeholder="0"
+              min="0"
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+          </div>
+
+          {/* Garansi Sampai (auto-calculated) */}
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="garansiSampai" className="text-sm font-medium text-slate-700 dark:text-slate-300">Garansi Sampai (otomatis)</Label>
+            <Input
+              id="garansiSampai"
+              name="garansiSampai"
+              type="date"
+              value={formData.garansiSampai}
+              disabled
+              className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="catatan">Catatan</Label>
-        <textarea
-          id="catatan"
-          name="catatan"
-          value={formData.catatan}
-          onChange={handleChange}
-          placeholder="Catatan tambahan"
-          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        />
+      {/* Location Information Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded">
+            <Check className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+          </div>
+          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Lokasi & Pengguna</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Lokasi */}
+          <div className="space-y-2">
+            <Label htmlFor="lokasi" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Lokasi <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="lokasi"
+              name="lokasi"
+              value={formData.lokasi}
+              onChange={handleChange}
+              placeholder="Contoh: Kantor Pusat - Lt. 3"
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+            {errors.lokasi && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.lokasi}
+              </p>
+            )}
+          </div>
+
+          {/* Devisi */}
+          <div className="space-y-2">
+            <Label htmlFor="devisi" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Divisi <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="devisi"
+              name="devisi"
+              value={formData.devisi}
+              onChange={handleChange}
+              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+            >
+              <option value="">Pilih divisi</option>
+              {divisiList.map((divisi) => (
+                <option key={divisi} value={divisi}>
+                  {divisi}
+                </option>
+              ))}
+            </Select>
+            {errors.devisi && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.devisi}
+              </p>
+            )}
+          </div>
+
+          {/* Sub Devisi / Pengguna */}
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="subDevisi" className="text-sm font-medium text-slate-700 dark:text-slate-300">Sub Divisi / Pengguna</Label>
+            <Input
+              id="subDevisi"
+              name="subDevisi"
+              value={formData.subDevisi}
+              onChange={handleChange}
+              placeholder="Nama sub divisi atau pengguna"
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      {/* Status Information Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <div className="p-1.5 bg-amber-100 dark:bg-amber-900/30 rounded">
+            <Check className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Status & Kondisi</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Status */}
+          <div className="space-y-2">
+            <Label htmlFor="status" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Status <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+            >
+              {statusOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Kondisi */}
+          <div className="space-y-2">
+            <Label htmlFor="kondisi" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Kondisi <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="kondisi"
+              name="kondisi"
+              value={formData.kondisi}
+              onChange={handleChange}
+              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+            >
+              {kondisiOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Akun Terhubung */}
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="akunTerhubung" className="text-sm font-medium text-slate-700 dark:text-slate-300">Akun Terhubung</Label>
+            <Input
+              id="akunTerhubung"
+              name="akunTerhubung"
+              value={formData.akunTerhubung}
+              onChange={handleChange}
+              placeholder="Email atau username"
+              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Additional Information Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+          <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded">
+            <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Tambahan</h3>
+        </div>
+
+        {/* Spesifikasi */}
+        <div className="space-y-2">
+          <Label htmlFor="spesifikasi" className="text-sm font-medium text-slate-700 dark:text-slate-300">Spesifikasi</Label>
+          <textarea
+            id="spesifikasi"
+            name="spesifikasi"
+            value={formData.spesifikasi}
+            onChange={handleChange}
+            placeholder="Detail spesifikasi teknis (CPU, RAM, Storage, dll)"
+            rows={3}
+            className="flex w-full rounded-md border border-slate-300 dark:border-slate-600 bg-background px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+          />
+        </div>
+
+        {/* Keterangan */}
+        <div className="space-y-2">
+          <Label htmlFor="keterangan" className="text-sm font-medium text-slate-700 dark:text-slate-300">Keterangan</Label>
+          <textarea
+            id="keterangan"
+            name="keterangan"
+            value={formData.keterangan}
+            onChange={handleChange}
+            placeholder="Keterangan tambahan"
+            rows={3}
+            className="flex w-full rounded-md border border-slate-300 dark:border-slate-600 bg-background px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+          />
+        </div>
+
+        {/* Gambar Upload */}
+        <div className="space-y-2">
+          <Label htmlFor="gambar" className="text-sm font-medium text-slate-700 dark:text-slate-300">Gambar Barang</Label>
+          <div className="flex flex-col gap-3">
+            <div className="relative">
+              <Input
+                id="gambar"
+                name="gambar"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleImageChange}
+                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950 dark:file:text-blue-300 transition-all border-slate-200 dark:border-slate-700"
+              />
+            </div>
+            {errors.gambar && (
+              <p className="text-sm text-red-500 flex items-center gap-1">
+                <X className="w-3 h-3" />
+                {errors.gambar}
+              </p>
+            )}
+            <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+              <ImageIcon className="w-3.5 h-3.5" />
+              Format: JPG, PNG, GIF. Maksimal 2MB. Di HP bisa langsung ambil foto dari kamera.
+            </p>
+
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative w-full max-w-sm p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-56 object-cover rounded-md"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-md"
+                  title="Hapus gambar"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Form Actions */}
+      <div className="flex justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="min-w-[100px] text-slate-700 dark:text-slate-300"
+        >
           Batal
         </Button>
-        <Button type="submit">
-          {device ? "Update Device" : "Tambah Device"}
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Menyimpan...
+            </>
+          ) : (
+            <>
+              <Check className="w-4 h-4 mr-2" />
+              {device ? "Update Barang" : "Tambah Barang"}
+            </>
+          )}
         </Button>
       </div>
     </form>

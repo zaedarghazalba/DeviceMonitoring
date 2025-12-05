@@ -59,7 +59,7 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">Email</Label>
+              <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -68,12 +68,12 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
+                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">Password</Label>
+              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -82,7 +82,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                className="text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
+                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
               />
             </div>
 

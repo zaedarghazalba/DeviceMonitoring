@@ -266,16 +266,16 @@ export default function Home() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-100">
               Device Monitoring System
             </h1>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
               Sistem Pencatatan Inventaris Perangkat Kantor
             </p>
             {user && (
-              <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1.5 mt-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                {user.email}
+                <span className="truncate max-w-[200px] sm:max-w-none">{user.email}</span>
               </p>
             )}
           </div>
@@ -283,23 +283,23 @@ export default function Home() {
             <Button
               onClick={() => setIsSettingsDialogOpen(true)}
               variant="outline"
-              className="text-slate-700 dark:text-slate-300"
+              className="flex-1 sm:flex-none min-h-[44px] text-slate-700 dark:text-slate-300"
             >
-              <Settings className="w-4 h-4 mr-2" />
-              Pengaturan
+              <Settings className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Pengaturan</span>
             </Button>
             <Button
               onClick={() => setIsExportDialogOpen(true)}
               variant="outline"
-              className="text-slate-700 dark:text-slate-300"
+              className="flex-1 sm:flex-none min-h-[44px] text-slate-700 dark:text-slate-300"
             >
-              <FileDown className="w-4 h-4 mr-2" />
-              Export
+              <FileDown className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Export</span>
             </Button>
             <ThemeToggle />
             <Button
               onClick={() => setIsAddDialogOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:w-auto min-h-[44px] bg-blue-600 hover:bg-blue-700 text-white font-medium"
             >
               <Plus className="w-4 h-4 mr-2" />
               Tambah Barang
@@ -307,7 +307,7 @@ export default function Home() {
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="text-slate-700 dark:text-slate-300 hover:text-red-600 hover:border-red-300"
+              className="w-full sm:w-auto min-h-[44px] text-slate-700 dark:text-slate-300 hover:text-red-600 hover:border-red-300"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
@@ -387,14 +387,14 @@ export default function Home() {
 
         {/* Filters and Search */}
         <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <div className="flex items-center gap-2">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 pb-4">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                 <Filter className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
-              <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100">Filter & Pencarian</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100">Filter & Pencarian</CardTitle>
               {activeFilterCount > 0 && (
-                <Badge variant="default" className="ml-2 bg-blue-600 text-white">
+                <Badge variant="default" className="bg-blue-600 text-white text-xs px-2 py-1">
                   {activeFilterCount} aktif
                 </Badge>
               )}
@@ -404,7 +404,7 @@ export default function Home() {
                 variant="ghost"
                 size="sm"
                 onClick={handleClearFilters}
-                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                className="min-h-[44px] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
               >
                 <X className="w-4 h-4 mr-1" />
                 Clear All
@@ -413,20 +413,20 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              <div className="relative lg:col-span-1">
+              <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
                 <Input
                   placeholder="Cari barang..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 h-10 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+                  className="pl-9 min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
                 />
               </div>
 
               <Select
                 value={filters.kondisi}
                 onChange={(e) => setFilters({ ...filters, kondisi: e.target.value })}
-                className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
               >
                 <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Semua Kondisi</option>
                 <option value="Baik" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Baik</option>
@@ -438,7 +438,7 @@ export default function Home() {
               <Select
                 value={filters.status}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
               >
                 <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Semua Status</option>
                 <option value="Aktif" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Aktif</option>
@@ -450,7 +450,7 @@ export default function Home() {
               <Select
                 value={filters.devisi}
                 onChange={(e) => setFilters({ ...filters, devisi: e.target.value })}
-                className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
               >
                 <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Semua Divisi</option>
                 {uniqueDevisi.map((devisi) => (
@@ -463,7 +463,7 @@ export default function Home() {
               <Select
                 value={filters.jenisBarang}
                 onChange={(e) => setFilters({ ...filters, jenisBarang: e.target.value })}
-                className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
+                className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100"
               >
                 <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Semua Jenis Barang</option>
                 {uniqueJenisBarang.map((jenis) => (
@@ -479,17 +479,17 @@ export default function Home() {
         {/* Devices Table */}
         <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <CardTitle className="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 Daftar Barang
-                <Badge variant="outline" className="ml-2 font-normal text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600">
+                <Badge variant="outline" className="font-normal text-xs text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600">
                   {filteredDevices.length} items
                 </Badge>
               </CardTitle>
               {isApplyingFilters && (
                 <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Memfilter...
+                  <span className="hidden sm:inline">Memfilter...</span>
                 </div>
               )}
             </div>
@@ -501,111 +501,120 @@ export default function Home() {
                 <p className="text-sm text-slate-600 dark:text-slate-400">Memuat data perangkat...</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50 dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Kode ID</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Jenis Barang</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Merk</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Type</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">SN/Reg Model</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Kondisi</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Divisi</TableHead>
-                      <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Sub Divisi</TableHead>
-                      <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredDevices.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={10} className="text-center py-16">
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                              <Package className="w-8 h-8 text-slate-400 dark:text-slate-500" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-slate-900 dark:text-slate-100">Tidak ada data barang</p>
-                              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                {activeFilterCount > 0
-                                  ? "Coba ubah filter atau hapus filter aktif"
-                                  : "Mulai dengan menambahkan barang baru"}
-                              </p>
-                            </div>
-                            {activeFilterCount > 0 && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleClearFilters}
-                                className="mt-2 text-slate-700 dark:text-slate-300"
-                              >
-                                <X className="w-4 h-4 mr-1" />
-                                Clear Filters
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredDevices.map((device, index) => (
-                        <TableRow
-                          key={device.id}
-                          className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                        >
-                          <TableCell className="font-mono text-sm font-medium text-slate-900 dark:text-slate-100">{device.kodeId}</TableCell>
-                          <TableCell className="font-medium text-slate-900 dark:text-slate-100">{device.jenisBarang}</TableCell>
-                          <TableCell className="text-slate-700 dark:text-slate-300">{device.merk}</TableCell>
-                          <TableCell className="text-slate-700 dark:text-slate-300">{device.type}</TableCell>
-                          <TableCell className="font-mono text-sm text-slate-700 dark:text-slate-300">{device.snRegModel}</TableCell>
-                          <TableCell>
-                            <Badge variant={getKondisiBadgeVariant(device.status)} className="font-medium">
-                              {device.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getKondisiBadgeVariant(device.kondisi)} className="font-medium">
-                              {device.kondisi}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-slate-700 dark:text-slate-300">{device.devisi}</TableCell>
-                          <TableCell className="text-slate-700 dark:text-slate-300">{device.subDevisi || "-"}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-1">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => openDetailDialog(device)}
-                                title="Lihat Detail"
-                                className="text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => openEditDialog(device)}
-                                title="Edit"
-                                className="text-slate-600 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => openDeleteDialog(device)}
-                                title="Hapus"
-                                className="text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
+              <div className="relative">
+                {/* Mobile scroll indicator */}
+                <div className="block sm:hidden mb-2 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                  <span>Geser tabel ke kanan untuk melihat semua data</span>
+                  <span className="text-lg">→</span>
+                </div>
+                <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 -mx-2 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle">
+                    <Table className="min-w-[800px]">
+                      <TableHeader>
+                        <TableRow className="bg-slate-50 dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Kode ID</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Jenis Barang</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Merk</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Type</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">SN/Reg Model</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Status</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Kondisi</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Divisi</TableHead>
+                          <TableHead className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Sub Divisi</TableHead>
+                          <TableHead className="text-right font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap sticky right-0 bg-slate-50 dark:bg-slate-800">Aksi</TableHead>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredDevices.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={10} className="text-center py-16">
+                              <div className="flex flex-col items-center gap-3">
+                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                  <Package className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-sm sm:text-base text-slate-900 dark:text-slate-100">Tidak ada data barang</p>
+                                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                    {activeFilterCount > 0
+                                      ? "Coba ubah filter atau hapus filter aktif"
+                                      : "Mulai dengan menambahkan barang baru"}
+                                  </p>
+                                </div>
+                                {activeFilterCount > 0 && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleClearFilters}
+                                    className="mt-2 min-h-[44px] text-slate-700 dark:text-slate-300"
+                                  >
+                                    <X className="w-4 h-4 mr-1" />
+                                    Clear Filters
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredDevices.map((device, index) => (
+                            <TableRow
+                              key={device.id}
+                              className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                            >
+                              <TableCell className="font-mono text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100 whitespace-nowrap">{device.kodeId}</TableCell>
+                              <TableCell className="font-medium text-xs sm:text-sm text-slate-900 dark:text-slate-100 whitespace-nowrap">{device.jenisBarang}</TableCell>
+                              <TableCell className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">{device.merk}</TableCell>
+                              <TableCell className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">{device.type}</TableCell>
+                              <TableCell className="font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">{device.snRegModel}</TableCell>
+                              <TableCell className="whitespace-nowrap">
+                                <Badge variant={getKondisiBadgeVariant(device.status)} className="font-medium text-xs">
+                                  {device.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap">
+                                <Badge variant={getKondisiBadgeVariant(device.kondisi)} className="font-medium text-xs">
+                                  {device.kondisi}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">{device.devisi}</TableCell>
+                              <TableCell className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">{device.subDevisi || "-"}</TableCell>
+                              <TableCell className="text-right whitespace-nowrap sticky right-0 bg-white dark:bg-slate-800">
+                                <div className="flex justify-end gap-1">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => openDetailDialog(device)}
+                                    title="Lihat Detail"
+                                    className="h-9 w-9 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => openEditDialog(device)}
+                                    title="Edit"
+                                    className="h-9 w-9 text-slate-600 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => openDeleteDialog(device)}
+                                    title="Hapus"
+                                    className="h-9 w-9 text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>
@@ -614,9 +623,9 @@ export default function Home() {
 
       {/* Add Device Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900">
+        <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-100">Tambah Barang Baru</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-100">Tambah Barang Baru</DialogTitle>
           </DialogHeader>
           <DeviceForm
             onSubmit={handleAddDevice}
@@ -627,9 +636,9 @@ export default function Home() {
 
       {/* Edit Device Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900">
+        <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-100">Edit Barang</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-100">Edit Barang</DialogTitle>
           </DialogHeader>
           {selectedDevice && (
             <DeviceForm
@@ -646,7 +655,7 @@ export default function Home() {
 
       {/* Device Detail Dialog */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 p-4 sm:p-6">
           {selectedDevice && (
             <DeviceDetail
               device={selectedDevice}
@@ -663,35 +672,35 @@ export default function Home() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="max-w-md bg-white dark:bg-slate-900">
+        <DialogContent className="max-w-[95vw] sm:max-w-md bg-white dark:bg-slate-900 p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-100">Konfirmasi Hapus Barang</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-100">Konfirmasi Hapus Barang</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Apakah Anda yakin ingin menghapus barang ini? Tindakan ini tidak dapat dibatalkan.
             </p>
             {selectedDevice && (
-              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-4 rounded-lg">
-                <p className="font-semibold text-red-900 dark:text-red-100">{selectedDevice.merk} {selectedDevice.type}</p>
-                <p className="text-sm text-red-700 dark:text-red-300 mt-1">Kode: {selectedDevice.kodeId} | S/N: {selectedDevice.snRegModel}</p>
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-3 sm:p-4 rounded-lg">
+                <p className="font-semibold text-sm sm:text-base text-red-900 dark:text-red-100">{selectedDevice.merk} {selectedDevice.type}</p>
+                <p className="text-xs sm:text-sm text-red-700 dark:text-red-300 mt-1 break-all">Kode: {selectedDevice.kodeId} | S/N: {selectedDevice.snRegModel}</p>
               </div>
             )}
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
               <Button
                 variant="outline"
                 onClick={() => {
                   setIsDeleteDialogOpen(false)
                   setSelectedDevice(null)
                 }}
-                className="text-slate-700 dark:text-slate-300"
+                className="min-h-[44px] text-slate-700 dark:text-slate-300 order-2 sm:order-1"
               >
                 Batal
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleDeleteDevice}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="min-h-[44px] bg-red-600 hover:bg-red-700 text-white order-1 sm:order-2"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Hapus Barang
@@ -703,16 +712,16 @@ export default function Home() {
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900">
+        <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-100">Pengaturan</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-100">Pengaturan</DialogTitle>
           </DialogHeader>
 
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-slate-200 dark:border-slate-700 mb-4">
+          <div className="flex gap-2 border-b border-slate-200 dark:border-slate-700 mb-4 overflow-x-auto">
             <button
               onClick={() => setSettingsTab("kodeItem")}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap min-h-[44px] ${
                 settingsTab === "kodeItem"
                   ? "border-blue-600 text-blue-600 dark:text-blue-400"
                   : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300"
@@ -722,7 +731,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => setSettingsTab("divisi")}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all ${
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap min-h-[44px] ${
                 settingsTab === "divisi"
                   ? "border-blue-600 text-blue-600 dark:text-blue-400"
                   : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300"
@@ -742,7 +751,7 @@ export default function Home() {
           </div>
 
           <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
-            <Button onClick={() => setIsSettingsDialogOpen(false)} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Button onClick={() => setIsSettingsDialogOpen(false)} className="min-h-[44px] bg-blue-600 hover:bg-blue-700 text-white">
               Tutup
             </Button>
           </div>
@@ -751,26 +760,26 @@ export default function Home() {
 
       {/* Export Dialog */}
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
-        <DialogContent className="max-w-md bg-white dark:bg-slate-900">
+        <DialogContent className="max-w-[95vw] sm:max-w-md bg-white dark:bg-slate-900 p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-100">Export Laporan</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-100">Export Laporan</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Pilih format file untuk mengexport {filteredDevices.length} data perangkat
             </p>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Button
                 onClick={() => handleExport("pdf")}
                 variant="outline"
-                className="h-32 flex flex-col items-center justify-center gap-3 text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-950/20 hover:border-red-300 dark:hover:border-red-700 group"
+                className="h-32 sm:h-36 flex flex-col items-center justify-center gap-3 text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-950/20 hover:border-red-300 dark:hover:border-red-700 group"
               >
                 <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
                   <FileDown className="w-8 h-8 text-red-600 dark:text-red-400" />
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">PDF</p>
+                  <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-100">PDF</p>
                   <p className="text-xs text-slate-600 dark:text-slate-400">Format katalog dengan gambar</p>
                 </div>
               </Button>
@@ -778,20 +787,20 @@ export default function Home() {
               <Button
                 onClick={() => handleExport("csv")}
                 variant="outline"
-                className="h-32 flex flex-col items-center justify-center gap-3 text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-950/20 hover:border-green-300 dark:hover:border-green-700 group"
+                className="h-32 sm:h-36 flex flex-col items-center justify-center gap-3 text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-950/20 hover:border-green-300 dark:hover:border-green-700 group"
               >
                 <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
                   <FileDown className="w-8 h-8 text-green-600 dark:text-green-400" />
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">CSV</p>
+                  <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-100">CSV</p>
                   <p className="text-xs text-slate-600 dark:text-slate-400">Format spreadsheet Excel</p>
                 </div>
               </Button>
             </div>
 
             <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-700">
-              <Button variant="outline" onClick={() => setIsExportDialogOpen(false)} className="text-slate-700 dark:text-slate-300">
+              <Button variant="outline" onClick={() => setIsExportDialogOpen(false)} className="min-h-[44px] text-slate-700 dark:text-slate-300">
                 Batal
               </Button>
             </div>

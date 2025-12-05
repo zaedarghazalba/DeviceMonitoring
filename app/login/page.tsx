@@ -37,29 +37,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900 p-4">
-      <Card className="w-full max-w-md border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-              <Monitor className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900 p-4 sm:p-6">
+      <Card className="w-full max-w-[95vw] sm:max-w-md border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+        <CardHeader className="text-center space-y-3 sm:space-y-4 p-4 sm:p-6">
+          <div className="flex justify-center mb-2 sm:mb-4">
+            <div className="p-3 sm:p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+              <Monitor className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-slate-900 dark:text-slate-100">Device Monitoring System</CardTitle>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">
+          <CardTitle className="text-xl sm:text-2xl text-slate-900 dark:text-slate-100 px-2">Device Monitoring System</CardTitle>
+          <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-2 px-2">
             Silakan login untuk mengakses sistem
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <form onSubmit={handleLogin} className="space-y-4">
             {error && (
               <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-xs sm:text-sm text-red-600 dark:text-red-400 break-words">{error}</p>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -68,12 +68,12 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
+                className="min-h-[44px] text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -82,14 +82,14 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
+                className="min-h-[44px] text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 border-slate-300 dark:border-slate-600"
               />
             </div>
 
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+            <Button type="submit" className="w-full min-h-[48px] text-base font-medium bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Memproses...
                 </>
               ) : (

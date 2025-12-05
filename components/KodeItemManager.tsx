@@ -76,24 +76,24 @@ export function KodeItemManager({ onUpdate }: KodeItemManagerProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="newKode" className="text-slate-700 dark:text-slate-300">Kode (2 digit)</Label>
+          <Label htmlFor="newKode" className="text-sm font-medium text-slate-700 dark:text-slate-300">Kode (2 digit)</Label>
           <Input
             id="newKode"
             value={newKode}
             onChange={(e) => setNewKode(e.target.value)}
             placeholder="01"
             maxLength={2}
-            className="text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-600 placeholder:text-slate-500 dark:placeholder:text-slate-400"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="newNama" className="text-slate-700 dark:text-slate-300">Nama Item</Label>
+          <Label htmlFor="newNama" className="text-sm font-medium text-slate-700 dark:text-slate-300">Nama Item</Label>
           <Input
             id="newNama"
             value={newNama}
             onChange={(e) => setNewNama(e.target.value)}
             placeholder="Nama barang"
-            className="text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-600 placeholder:text-slate-500 dark:placeholder:text-slate-400"
           />
         </div>
         <div className="flex items-end">

@@ -63,14 +63,14 @@ export function DivisiManager({ onUpdate }: DivisiManagerProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="newDivisi" className="text-slate-700 dark:text-slate-300">Nama Divisi</Label>
+          <Label htmlFor="newDivisi" className="text-sm font-medium text-slate-700 dark:text-slate-300">Nama Divisi</Label>
           <Input
             id="newDivisi"
             value={newDivisi}
             onChange={(e) => setNewDivisi(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Contoh: MARKETING"
-            className="text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-600 placeholder:text-slate-500 dark:placeholder:text-slate-400"
           />
         </div>
         <div className="flex items-end">

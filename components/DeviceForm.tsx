@@ -6,6 +6,7 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Select } from "./ui/select"
+import { Textarea } from "./ui/textarea"
 import { getAllKodeItems, getAllDivisi, generateKodeId } from "@/lib/kode-item"
 import { getAllDevices } from "@/lib/storage"
 import { Loader2, Image as ImageIcon, X, Check } from "lucide-react"
@@ -125,9 +126,9 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       return
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setErrors(prev => ({ ...prev, gambar: "Ukuran gambar maksimal 2MB" }))
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, gambar: "Ukuran gambar maksimal 10MB" }))
       return
     }
 
@@ -203,17 +204,17 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       {/* Main Information Section */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
           <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded">
             <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
-          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Utama</h3>
+          <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-100">Informasi Utama</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {/* Jenis Barang */}
           <div className="space-y-2">
             <Label htmlFor="jenisBarang" className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -225,17 +226,17 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               value={formData.jenisBarang}
               onChange={handleJenisBarangChange}
               disabled={!!device}
-              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+              className="w-full min-h-[44px] text-sm bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
             >
-              <option value="">Pilih jenis barang</option>
+              <option value="" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Pilih jenis barang</option>
               {kodeItems.map((item) => (
-                <option key={item.kode} value={item.nama}>
+                <option key={item.kode} value={item.nama} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   {item.nama}
                 </option>
               ))}
             </Select>
             {errors.jenisBarang && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.jenisBarang}
               </p>
@@ -252,11 +253,11 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               name="kodeId"
               value={formData.kodeId}
               disabled
-              className="bg-slate-50 dark:bg-slate-900 font-mono border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+              className="min-h-[44px] text-sm bg-slate-50 dark:bg-slate-900 font-mono border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
               placeholder="Auto-generated: INV-XX-XXX-XX"
             />
             {errors.kodeId && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.kodeId}
               </p>
@@ -277,10 +278,10 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               value={formData.merk}
               onChange={handleChange}
               placeholder="Contoh: Dell, HP, Lenovo"
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
             {errors.merk && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.merk}
               </p>
@@ -298,10 +299,10 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               value={formData.type}
               onChange={handleChange}
               placeholder="Contoh: Latitude 5420"
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
             {errors.type && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.type}
               </p>
@@ -319,10 +320,10 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               value={formData.snRegModel}
               onChange={handleChange}
               placeholder="Contoh: DL-LAT-001"
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
             {errors.snRegModel && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.snRegModel}
               </p>
@@ -332,15 +333,15 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       </div>
 
       {/* Purchase Information Section */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
           <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded">
             <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
           </div>
-          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Pembelian</h3>
+          <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-100">Informasi Pembelian</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {/* Tanggal Beli */}
           <div className="space-y-2">
             <Label htmlFor="tanggalBeli" className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -352,10 +353,10 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               type="date"
               value={formData.tanggalBeli}
               onChange={handleChange}
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
             {errors.tanggalBeli && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.tanggalBeli}
               </p>
@@ -373,7 +374,7 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               onChange={handleChange}
               placeholder="0"
               min="0"
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
           </div>
 
@@ -386,22 +387,22 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               type="date"
               value={formData.garansiSampai}
               disabled
-              className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700"
+              className="min-h-[44px] text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
             />
           </div>
         </div>
       </div>
 
       {/* Location Information Section */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
           <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded">
             <Check className="w-4 h-4 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Lokasi & Pengguna</h3>
+          <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-100">Informasi Lokasi & Pengguna</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {/* Lokasi */}
           <div className="space-y-2">
             <Label htmlFor="lokasi" className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -413,10 +414,10 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               value={formData.lokasi}
               onChange={handleChange}
               placeholder="Contoh: Kantor Pusat - Lt. 3"
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
             {errors.lokasi && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.lokasi}
               </p>
@@ -433,17 +434,17 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               name="devisi"
               value={formData.devisi}
               onChange={handleChange}
-              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+              className="w-full min-h-[44px] text-sm bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
             >
-              <option value="">Pilih divisi</option>
+              <option value="" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">Pilih divisi</option>
               {divisiList.map((divisi) => (
-                <option key={divisi} value={divisi}>
+                <option key={divisi} value={divisi} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   {divisi}
                 </option>
               ))}
             </Select>
             {errors.devisi && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.devisi}
               </p>
@@ -459,22 +460,22 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               value={formData.subDevisi}
               onChange={handleChange}
               placeholder="Nama sub divisi atau pengguna"
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
           </div>
         </div>
       </div>
 
       {/* Status Information Section */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
           <div className="p-1.5 bg-amber-100 dark:bg-amber-900/30 rounded">
             <Check className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
-          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Status & Kondisi</h3>
+          <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-100">Status & Kondisi</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {/* Status */}
           <div className="space-y-2">
             <Label htmlFor="status" className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -485,10 +486,10 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+              className="w-full min-h-[44px] text-sm bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
             >
               {statusOptions.map((option) => (
-                <option key={option} value={option}>
+                <option key={option} value={option} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   {option}
                 </option>
               ))}
@@ -505,10 +506,10 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               name="kondisi"
               value={formData.kondisi}
               onChange={handleChange}
-              className="w-full border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+              className="w-full min-h-[44px] text-sm bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
             >
               {kondisiOptions.map((option) => (
-                <option key={option} value={option}>
+                <option key={option} value={option} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                   {option}
                 </option>
               ))}
@@ -524,46 +525,44 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
               value={formData.akunTerhubung}
               onChange={handleChange}
               placeholder="Email atau username"
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+              className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
             />
           </div>
         </div>
       </div>
 
       {/* Additional Information Section */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">
           <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded">
             <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">Informasi Tambahan</h3>
+          <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-100">Informasi Tambahan</h3>
         </div>
 
         {/* Spesifikasi */}
         <div className="space-y-2">
           <Label htmlFor="spesifikasi" className="text-sm font-medium text-slate-700 dark:text-slate-300">Spesifikasi</Label>
-          <textarea
+          <Textarea
             id="spesifikasi"
             name="spesifikasi"
             value={formData.spesifikasi}
             onChange={handleChange}
             placeholder="Detail spesifikasi teknis (CPU, RAM, Storage, dll)"
             rows={3}
-            className="flex w-full rounded-md border border-slate-300 dark:border-slate-600 bg-background px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
           />
         </div>
 
         {/* Keterangan */}
         <div className="space-y-2">
           <Label htmlFor="keterangan" className="text-sm font-medium text-slate-700 dark:text-slate-300">Keterangan</Label>
-          <textarea
+          <Textarea
             id="keterangan"
             name="keterangan"
             value={formData.keterangan}
             onChange={handleChange}
             placeholder="Keterangan tambahan"
             rows={3}
-            className="flex w-full rounded-md border border-slate-300 dark:border-slate-600 bg-background px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
           />
         </div>
 
@@ -579,35 +578,35 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
                 accept="image/*"
                 capture="environment"
                 onChange={handleImageChange}
-                className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950 dark:file:text-blue-300 transition-all border-slate-200 dark:border-slate-700"
+                className="cursor-pointer min-h-[44px] text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950 dark:file:text-blue-300 transition-all border-slate-200 dark:border-slate-700"
               />
             </div>
             {errors.gambar && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                 <X className="w-3 h-3" />
                 {errors.gambar}
               </p>
             )}
-            <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-              <ImageIcon className="w-3.5 h-3.5" />
-              Format: JPG, PNG, GIF. Maksimal 2MB. Di HP bisa langsung ambil foto dari kamera.
+            <p className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-1.5">
+              <ImageIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+              <span>Format: JPG, PNG, GIF. Maksimal 10MB. Di HP bisa langsung ambil foto dari kamera.</span>
             </p>
 
             {/* Image Preview */}
             {imagePreview && (
-              <div className="relative w-full max-w-sm p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="relative w-full max-w-full sm:max-w-sm p-2 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="w-full h-56 object-cover rounded-md"
+                  className="w-full h-48 sm:h-56 object-contain rounded-md"
                 />
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-md"
+                  className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg min-w-[44px] min-h-[44px] flex items-center justify-center"
                   title="Hapus gambar"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
             )}
@@ -616,20 +615,20 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       </div>
 
       {/* Form Actions */}
-      <div className="flex justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 sm:pt-6 border-t border-slate-200 dark:border-slate-700">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="min-w-[100px] text-slate-700 dark:text-slate-300"
+          className="w-full sm:w-auto min-w-[100px] min-h-[44px] text-slate-700 dark:text-slate-300 order-2 sm:order-1"
         >
           Batal
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white"
+          className="w-full sm:w-auto min-w-[140px] min-h-[44px] bg-blue-600 hover:bg-blue-700 text-white order-1 sm:order-2"
         >
           {isSubmitting ? (
             <>

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Device, DeviceKondisi, DeviceStatus } from "@/lib/types"
+import { Device, DeviceKondisi, DeviceStatus, DataSource } from "@/lib/types"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -31,6 +31,11 @@ const statusOptions: DeviceStatus[] = [
   "Menunggu Approval",
 ]
 
+const dataSourceOptions: DataSource[] = [
+  "Akselera",
+  "Eduprima",
+]
+
 export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
   const [kodeItems, setKodeItems] = useState(getAllKodeItems())
   const [divisiList, setDivisiList] = useState(getAllDivisi())
@@ -56,6 +61,7 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
     kondisi: device?.kondisi || ("Baik" as DeviceKondisi),
     akunTerhubung: device?.akunTerhubung || "",
     keterangan: device?.keterangan || "",
+    dataSource: device?.dataSource || ("Akselera" as DataSource),
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -215,6 +221,29 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          {/* Data Source - Paling Atas */}
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="dataSource" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Sumber Data <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="dataSource"
+              name="dataSource"
+              value={formData.dataSource}
+              onChange={handleChange}
+              className="w-full min-h-[44px] text-sm bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 font-semibold"
+            >
+              {dataSourceOptions.map((option) => (
+                <option key={option} value={option} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold">
+                  {option}
+                </option>
+              ))}
+            </Select>
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              ⚡ Pilih apakah data ini milik <strong>Akselera</strong> atau <strong>Eduprima</strong>
+            </p>
+          </div>
+
           {/* Jenis Barang */}
           <div className="space-y-2">
             <Label htmlFor="jenisBarang" className="text-sm font-medium text-slate-700 dark:text-slate-300">

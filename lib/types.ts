@@ -1,5 +1,6 @@
 export type DeviceKondisi = "Baik" | "Rusak" | "Dalam Perbaikan" | "Tidak Terpakai";
 export type DeviceStatus = "Aktif" | "Tidak Aktif" | "Dalam Perbaikan" | "Menunggu Approval";
+export type DataSource = "Akselera" | "Eduprima";
 
 export interface KodeItem {
   kode: string; // Kode item (01, 02, 03, etc)
@@ -25,6 +26,7 @@ export interface Device {
   kondisi: DeviceKondisi;
   akunTerhubung: string; // Akun Terhubung
   keterangan: string; // Keterangan tambahan
+  dataSource: DataSource; // Sumber data: Akselera atau Eduprima
   tanggalDibuat: string;
   tanggalDiupdate: string;
 }
@@ -34,4 +36,5 @@ export interface DeviceFilters {
   devisi?: string | "all";
   jenisBarang?: string | "all";
   status?: string | "all";
+  dataSource?: string | "all";
 }

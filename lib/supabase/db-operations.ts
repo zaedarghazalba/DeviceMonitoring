@@ -43,6 +43,7 @@ export async function getAllDevices(): Promise<Device[]> {
     kondisi: device.kondisi,
     akunTerhubung: device.akun_terhubung || '',
     keterangan: device.keterangan || '',
+    dataSource: device.data_source || 'Akselera',
     tanggalDibuat: device.created_at,
     tanggalDiupdate: device.updated_at,
   }))
@@ -84,6 +85,7 @@ export async function getDeviceById(id: string): Promise<Device | null> {
     kondisi: data.kondisi,
     akunTerhubung: data.akun_terhubung || '',
     keterangan: data.keterangan || '',
+    dataSource: data.data_source || 'Akselera',
     tanggalDibuat: data.created_at,
     tanggalDiupdate: data.updated_at,
   }
@@ -113,6 +115,7 @@ export async function addDevice(device: Omit<Device, "id" | "tanggalDibuat" | "t
       kondisi: device.kondisi,
       akun_terhubung: device.akunTerhubung || null,
       keterangan: device.keterangan || null,
+      data_source: device.dataSource,
     })
     .select()
     .single()
@@ -141,6 +144,7 @@ export async function addDevice(device: Omit<Device, "id" | "tanggalDibuat" | "t
     kondisi: data.kondisi,
     akunTerhubung: data.akun_terhubung || '',
     keterangan: data.keterangan || '',
+    dataSource: data.data_source || 'Akselera',
     tanggalDibuat: data.created_at,
     tanggalDiupdate: data.updated_at,
   }
@@ -169,6 +173,7 @@ export async function updateDevice(id: string, updates: Partial<Device>): Promis
   if (updates.kondisi) updateData.kondisi = updates.kondisi
   if (updates.akunTerhubung !== undefined) updateData.akun_terhubung = updates.akunTerhubung || null
   if (updates.keterangan !== undefined) updateData.keterangan = updates.keterangan || null
+  if (updates.dataSource) updateData.data_source = updates.dataSource
 
   const { data, error } = await supabase
     .from('devices')
@@ -201,6 +206,7 @@ export async function updateDevice(id: string, updates: Partial<Device>): Promis
     kondisi: data.kondisi,
     akunTerhubung: data.akun_terhubung || '',
     keterangan: data.keterangan || '',
+    dataSource: data.data_source || 'Akselera',
     tanggalDibuat: data.created_at,
     tanggalDiupdate: data.updated_at,
   }
@@ -263,6 +269,7 @@ export async function searchDevices(query: string): Promise<Device[]> {
     kondisi: device.kondisi,
     akunTerhubung: device.akun_terhubung || '',
     keterangan: device.keterangan || '',
+    dataSource: device.data_source || 'Akselera',
     tanggalDibuat: device.created_at,
     tanggalDiupdate: device.updated_at,
   }))
@@ -285,6 +292,9 @@ export async function filterDevices(filters: DeviceFilters): Promise<Device[]> {
   }
   if (filters.status && filters.status !== "all") {
     query = query.eq('status', filters.status)
+  }
+  if (filters.dataSource && filters.dataSource !== "all") {
+    query = query.eq('data_source', filters.dataSource)
   }
 
   query = query.order('created_at', { ascending: false })
@@ -315,6 +325,7 @@ export async function filterDevices(filters: DeviceFilters): Promise<Device[]> {
     kondisi: device.kondisi,
     akunTerhubung: device.akun_terhubung || '',
     keterangan: device.keterangan || '',
+    dataSource: device.data_source || 'Akselera',
     tanggalDibuat: device.created_at,
     tanggalDiupdate: device.updated_at,
   }))

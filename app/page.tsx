@@ -68,6 +68,7 @@ export default function Home() {
     devisi: "all",
     jenisBarang: "all",
     status: "all",
+    dataSource: "all",
   })
 
   // Loading states
@@ -133,7 +134,8 @@ export default function Home() {
         filters.kondisi !== "all" ||
         filters.devisi !== "all" ||
         filters.jenisBarang !== "all" ||
-        filters.status !== "all"
+        filters.status !== "all" ||
+        filters.dataSource !== "all"
 
       // Apply filters from Supabase if any filter is active
       if (hasActiveFilters) {
@@ -209,6 +211,7 @@ export default function Home() {
       devisi: "all",
       jenisBarang: "all",
       status: "all",
+      dataSource: "all",
     })
     setSearchQuery("")
   }
@@ -257,6 +260,7 @@ export default function Home() {
     filters.devisi !== "all",
     filters.jenisBarang !== "all",
     filters.status !== "all",
+    filters.dataSource !== "all",
     searchQuery.trim() !== ""
   ].filter(Boolean).length
 
@@ -412,7 +416,7 @@ export default function Home() {
             )}
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
               <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
                 <Input
@@ -422,6 +426,16 @@ export default function Home() {
                   className="pl-9 min-h-[44px] text-sm border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400"
                 />
               </div>
+
+              <Select
+                value={filters.dataSource}
+                onChange={(e) => setFilters({ ...filters, dataSource: e.target.value })}
+                className="min-h-[44px] text-sm border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold"
+              >
+                <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold">Semua Data Source</option>
+                <option value="Akselera" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold">Akselera</option>
+                <option value="Eduprima" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-semibold">Eduprima</option>
+              </Select>
 
               <Select
                 value={filters.kondisi}

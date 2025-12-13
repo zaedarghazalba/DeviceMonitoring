@@ -40,6 +40,7 @@ function initializeSampleData(): void {
         kondisi: "Baik",
         akunTerhubung: "ahmad.rizki@company.com",
         keterangan: "Laptop untuk developer",
+        dataSource: "Akselera",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
@@ -62,6 +63,7 @@ function initializeSampleData(): void {
         kondisi: "Baik",
         akunTerhubung: "siti.nurhaliza@company.com",
         keterangan: "Monitor tambahan untuk pekerjaan spreadsheet",
+        dataSource: "Eduprima",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
@@ -84,6 +86,7 @@ function initializeSampleData(): void {
         kondisi: "Dalam Perbaikan",
         akunTerhubung: "",
         keterangan: "Paper jam, sedang diperbaiki teknisi",
+        dataSource: "Akselera",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
@@ -106,6 +109,7 @@ function initializeSampleData(): void {
         kondisi: "Baik",
         akunTerhubung: "",
         keterangan: "Router utama kantor",
+        dataSource: "Eduprima",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
@@ -128,6 +132,7 @@ function initializeSampleData(): void {
         kondisi: "Tidak Terpakai",
         akunTerhubung: "",
         keterangan: "Cadangan, kondisi baik namun tidak digunakan",
+        dataSource: "Akselera",
         tanggalDibuat: getCurrentTimestamp(),
         tanggalDiupdate: getCurrentTimestamp(),
       },
@@ -237,6 +242,9 @@ export function filterDevices(filters: DeviceFilters): Device[] {
       return false;
     }
     if (filters.status && filters.status !== "all" && device.status !== filters.status) {
+      return false;
+    }
+    if (filters.dataSource && filters.dataSource !== "all" && device.dataSource !== filters.dataSource) {
       return false;
     }
     return true;

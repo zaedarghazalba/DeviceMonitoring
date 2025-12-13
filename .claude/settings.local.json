@@ -12,7 +12,9 @@
       "Bash(npm uninstall:*)",
       "Bash(timeout /t 10)",
       "Bash(taskkill:*)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

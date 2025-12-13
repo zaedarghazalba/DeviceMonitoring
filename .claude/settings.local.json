@@ -14,7 +14,8 @@
       "Bash(taskkill:*)",
       "Bash(ping:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

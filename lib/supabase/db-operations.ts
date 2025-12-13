@@ -24,7 +24,7 @@ export async function getAllDevices(): Promise<Device[]> {
   }
 
   // Transform database format to app format
-  return data.map(device => ({
+  return data.map((device: any) => ({
     id: device.id,
     kodeId: device.kode_id,
     jenisBarang: device.jenis_barang,
@@ -66,28 +66,29 @@ export async function getDeviceById(id: string): Promise<Device | null> {
 
   if (!data) return null
 
+  const deviceData: any = data
   return {
-    id: data.id,
-    kodeId: data.kode_id,
-    jenisBarang: data.jenis_barang,
-    tanggalBeli: data.tanggal_beli,
-    garansi: data.garansi,
-    garansiSampai: data.garansi_sampai,
-    lokasi: data.lokasi,
-    devisi: data.devisi,
-    subDevisi: data.sub_devisi || '',
-    merk: data.merk,
-    type: data.type,
-    snRegModel: data.sn_reg_model,
-    spesifikasi: data.spesifikasi || '',
-    gambar: data.gambar || '',
-    status: data.status,
-    kondisi: data.kondisi,
-    akunTerhubung: data.akun_terhubung || '',
-    keterangan: data.keterangan || '',
-    dataSource: data.data_source || 'Akselera',
-    tanggalDibuat: data.created_at,
-    tanggalDiupdate: data.updated_at,
+    id: deviceData.id,
+    kodeId: deviceData.kode_id,
+    jenisBarang: deviceData.jenis_barang,
+    tanggalBeli: deviceData.tanggal_beli,
+    garansi: deviceData.garansi,
+    garansiSampai: deviceData.garansi_sampai,
+    lokasi: deviceData.lokasi,
+    devisi: deviceData.devisi,
+    subDevisi: deviceData.sub_devisi || '',
+    merk: deviceData.merk,
+    type: deviceData.type,
+    snRegModel: deviceData.sn_reg_model,
+    spesifikasi: deviceData.spesifikasi || '',
+    gambar: deviceData.gambar || '',
+    status: deviceData.status,
+    kondisi: deviceData.kondisi,
+    akunTerhubung: deviceData.akun_terhubung || '',
+    keterangan: deviceData.keterangan || '',
+    dataSource: deviceData.data_source || 'Akselera',
+    tanggalDibuat: deviceData.created_at,
+    tanggalDiupdate: deviceData.updated_at,
   }
 }
 
@@ -125,28 +126,29 @@ export async function addDevice(device: Omit<Device, "id" | "tanggalDibuat" | "t
     return null
   }
 
+  const deviceData: any = data
   return {
-    id: data.id,
-    kodeId: data.kode_id,
-    jenisBarang: data.jenis_barang,
-    tanggalBeli: data.tanggal_beli,
-    garansi: data.garansi,
-    garansiSampai: data.garansi_sampai,
-    lokasi: data.lokasi,
-    devisi: data.devisi,
-    subDevisi: data.sub_devisi || '',
-    merk: data.merk,
-    type: data.type,
-    snRegModel: data.sn_reg_model,
-    spesifikasi: data.spesifikasi || '',
-    gambar: data.gambar || '',
-    status: data.status,
-    kondisi: data.kondisi,
-    akunTerhubung: data.akun_terhubung || '',
-    keterangan: data.keterangan || '',
-    dataSource: data.data_source || 'Akselera',
-    tanggalDibuat: data.created_at,
-    tanggalDiupdate: data.updated_at,
+    id: deviceData.id,
+    kodeId: deviceData.kode_id,
+    jenisBarang: deviceData.jenis_barang,
+    tanggalBeli: deviceData.tanggal_beli,
+    garansi: deviceData.garansi,
+    garansiSampai: deviceData.garansi_sampai,
+    lokasi: deviceData.lokasi,
+    devisi: deviceData.devisi,
+    subDevisi: deviceData.sub_devisi || '',
+    merk: deviceData.merk,
+    type: deviceData.type,
+    snRegModel: deviceData.sn_reg_model,
+    spesifikasi: deviceData.spesifikasi || '',
+    gambar: deviceData.gambar || '',
+    status: deviceData.status,
+    kondisi: deviceData.kondisi,
+    akunTerhubung: deviceData.akun_terhubung || '',
+    keterangan: deviceData.keterangan || '',
+    dataSource: deviceData.data_source || 'Akselera',
+    tanggalDibuat: deviceData.created_at,
+    tanggalDiupdate: deviceData.updated_at,
   }
 }
 
@@ -187,28 +189,29 @@ export async function updateDevice(id: string, updates: Partial<Device>): Promis
     return null
   }
 
+  const deviceData: any = data
   return {
-    id: data.id,
-    kodeId: data.kode_id,
-    jenisBarang: data.jenis_barang,
-    tanggalBeli: data.tanggal_beli,
-    garansi: data.garansi,
-    garansiSampai: data.garansi_sampai,
-    lokasi: data.lokasi,
-    devisi: data.devisi,
-    subDevisi: data.sub_devisi || '',
-    merk: data.merk,
-    type: data.type,
-    snRegModel: data.sn_reg_model,
-    spesifikasi: data.spesifikasi || '',
-    gambar: data.gambar || '',
-    status: data.status,
-    kondisi: data.kondisi,
-    akunTerhubung: data.akun_terhubung || '',
-    keterangan: data.keterangan || '',
-    dataSource: data.data_source || 'Akselera',
-    tanggalDibuat: data.created_at,
-    tanggalDiupdate: data.updated_at,
+    id: deviceData.id,
+    kodeId: deviceData.kode_id,
+    jenisBarang: deviceData.jenis_barang,
+    tanggalBeli: deviceData.tanggal_beli,
+    garansi: deviceData.garansi,
+    garansiSampai: deviceData.garansi_sampai,
+    lokasi: deviceData.lokasi,
+    devisi: deviceData.devisi,
+    subDevisi: deviceData.sub_devisi || '',
+    merk: deviceData.merk,
+    type: deviceData.type,
+    snRegModel: deviceData.sn_reg_model,
+    spesifikasi: deviceData.spesifikasi || '',
+    gambar: deviceData.gambar || '',
+    status: deviceData.status,
+    kondisi: deviceData.kondisi,
+    akunTerhubung: deviceData.akun_terhubung || '',
+    keterangan: deviceData.keterangan || '',
+    dataSource: deviceData.data_source || 'Akselera',
+    tanggalDibuat: deviceData.created_at,
+    tanggalDiupdate: deviceData.updated_at,
   }
 }
 
@@ -250,7 +253,7 @@ export async function searchDevices(query: string): Promise<Device[]> {
     return []
   }
 
-  return data.map(device => ({
+  return data.map((device: any) => ({
     id: device.id,
     kodeId: device.kode_id,
     jenisBarang: device.jenis_barang,

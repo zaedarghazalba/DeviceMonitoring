@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 
 interface DeviceDetailProps {
-  device: Device
+  device: Device | null
   onEdit: () => void
   onDelete: () => void
   onClose: () => void
@@ -32,6 +32,15 @@ export function DeviceDetail({
   onDelete,
   onClose,
 }: DeviceDetailProps) {
+  // Null check guard
+  if (!device) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-slate-600 dark:text-slate-400">Device tidak ditemukan</p>
+      </div>
+    )
+  }
+
   const getKondisiBadgeVariant = (kondisi: string) => {
     switch (kondisi) {
       case "Baik":
@@ -62,16 +71,23 @@ export function DeviceDetail({
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return "-"
+    try {
+      return new Date(dateString).toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    } catch {
+      return "-"
+    }
   }
 
   const handleExportPDF = () => {
-    exportDeviceDetailToPDF(device)
+    if (device) {
+      exportDeviceDetailToPDF(device)
+    }
   }
 
   const DetailRow = ({

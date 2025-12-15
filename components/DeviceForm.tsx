@@ -1,14 +1,13 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Device, DeviceKondisi, DeviceStatus, DataSource } from "@/lib/types"
+import { Device, DeviceKondisi, DeviceStatus, DataSource, KodeItem } from "@/lib/types"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Select } from "./ui/select"
 import { Textarea } from "./ui/textarea"
-import { getAllKodeItems, getAllDivisi, generateKodeId } from "@/lib/kode-item"
-import { getAllDevices } from "@/lib/storage"
+import { getAllKodeItems, getAllDivisi, generateKodeId } from "@/lib/supabase/db-operations"
 import { Loader2, Image as ImageIcon, X, Check } from "lucide-react"
 
 interface DeviceFormProps {
@@ -37,11 +36,12 @@ const dataSourceOptions: DataSource[] = [
 ]
 
 export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
-  const [kodeItems, setKodeItems] = useState(getAllKodeItems())
-  const [divisiList, setDivisiList] = useState(getAllDivisi())
+  const [kodeItems, setKodeItems] = useState<KodeItem[]>([])
+  const [divisiList, setDivisiList] = useState<string[]>([])
   const [selectedKodeItem, setSelectedKodeItem] = useState("")
   const [imagePreview, setImagePreview] = useState<string>(device?.gambar || "")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoadingData, setIsLoadingData] = useState(true)
 
   const [formData, setFormData] = useState({
     kodeId: device?.kodeId || "",
@@ -66,15 +66,41 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Load kode items and divisi from Supabase on mount
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoadingData(true)
+      try {
+        const [items, divisi] = await Promise.all([
+          getAllKodeItems(),
+          getAllDivisi()
+        ])
+        setKodeItems(items)
+        setDivisiList(divisi)
+      } catch (error) {
+        console.error('Error loading form data:', error)
+      } finally {
+        setIsLoadingData(false)
+      }
+    }
+    loadData()
+  }, [])
+
   // Auto-generate Kode ID when jenisBarang or tanggalBeli changes (only for new device)
   useEffect(() => {
     if (!device && selectedKodeItem && formData.tanggalBeli) {
-      const existingDevices = getAllDevices()
-      const newKodeId = generateKodeId(selectedKodeItem, existingDevices, formData.tanggalBeli)
-      setFormData(prev => ({
-        ...prev,
-        kodeId: newKodeId
-      }))
+      const generateKode = async () => {
+        try {
+          const newKodeId = await generateKodeId(selectedKodeItem, formData.tanggalBeli)
+          setFormData(prev => ({
+            ...prev,
+            kodeId: newKodeId
+          }))
+        } catch (error) {
+          console.error('Error generating Kode ID:', error)
+        }
+      }
+      generateKode()
     }
   }, [selectedKodeItem, formData.tanggalBeli, device])
 
@@ -176,6 +202,29 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
     }
     if (!formData.tanggalBeli) {
       newErrors.tanggalBeli = "Tanggal beli wajib diisi"
+    } else {
+      // Validate tanggalBeli is not in the future
+      const tanggalBeli = new Date(formData.tanggalBeli)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Reset time to compare dates only
+      if (tanggalBeli > today) {
+        newErrors.tanggalBeli = "Tanggal beli tidak boleh di masa depan"
+      }
+    }
+    if (formData.garansi < 0) {
+      newErrors.garansi = "Garansi tidak boleh negatif"
+    }
+    if (formData.garansi > 240) {
+      // Max 20 years
+      newErrors.garansi = "Garansi terlalu panjang (maksimal 240 bulan/20 tahun)"
+    }
+    if (formData.tanggalBeli && formData.garansiSampai) {
+      // Validate garansiSampai is after tanggalBeli
+      const tanggalBeli = new Date(formData.tanggalBeli)
+      const garansiSampai = new Date(formData.garansiSampai)
+      if (garansiSampai < tanggalBeli) {
+        newErrors.garansiSampai = "Tanggal garansi sampai harus setelah tanggal beli"
+      }
     }
     if (!formData.lokasi.trim()) {
       newErrors.lokasi = "Lokasi wajib diisi"
@@ -207,6 +256,15 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
         setIsSubmitting(false)
       }
     }
+  }
+
+  if (isLoadingData) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <span className="ml-3 text-slate-600 dark:text-slate-400">Memuat data...</span>
+      </div>
+    )
   }
 
   return (

@@ -56,10 +56,32 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/lib/supabase/auth-context"
 import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 export default function Home() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, loading } = useAuth()
   const router = useRouter()
+
+  // Authentication Guard
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  // Don't render if not authenticated
+  if (!user) {
+    return null
+  }
   const [devices, setDevices] = useState<Device[]>([])
   const [filteredDevices, setFilteredDevices] = useState<Device[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -112,16 +134,21 @@ export default function Home() {
       setFilteredDevices(allDevices)
     } catch (error) {
       console.error("Error loading devices:", error)
+      toast.error("Gagal memuat data device")
     } finally {
       setIsLoadingDevices(false)
     }
   }
 
   const loadUniqueValues = async () => {
-    const devisi = await getUniqueValues("devisi")
-    const jenisBarang = await getUniqueValues("jenisBarang")
-    setUniqueDevisi(devisi)
-    setUniqueJenisBarang(jenisBarang)
+    try {
+      const devisi = await getUniqueValues("devisi")
+      const jenisBarang = await getUniqueValues("jenisBarang")
+      setUniqueDevisi(devisi)
+      setUniqueJenisBarang(jenisBarang)
+    } catch (error) {
+      console.error("Error loading unique values:", error)
+    }
   }
 
   const applyFiltersAndSearch = async () => {
@@ -160,33 +187,67 @@ export default function Home() {
       setFilteredDevices(result)
     } catch (error) {
       console.error("Error applying filters:", error)
+      toast.error("Gagal menerapkan filter")
     } finally {
       setIsApplyingFilters(false)
     }
   }
 
   const handleAddDevice = async (deviceData: Omit<Device, "id" | "tanggalDibuat" | "tanggalDiupdate">) => {
-    await addDevice(deviceData)
-    await loadDevices()
-    setIsAddDialogOpen(false)
+    const loadingToast = toast.loading("Menambahkan device...")
+    try {
+      const result = await addDevice(deviceData)
+      if (result) {
+        toast.success("Device berhasil ditambahkan!", { id: loadingToast })
+        await loadDevices()
+        setIsAddDialogOpen(false)
+      } else {
+        toast.error("Gagal menambahkan device", { id: loadingToast })
+      }
+    } catch (error) {
+      console.error("Error adding device:", error)
+      toast.error("Terjadi kesalahan saat menambahkan device", { id: loadingToast })
+    }
   }
 
   const handleUpdateDevice = async (deviceData: Omit<Device, "id" | "tanggalDibuat" | "tanggalDiupdate">) => {
     if (selectedDevice) {
-      await updateDevice(selectedDevice.id, deviceData)
-      await loadDevices()
-      setIsEditDialogOpen(false)
-      setSelectedDevice(null)
+      const loadingToast = toast.loading("Mengupdate device...")
+      try {
+        const result = await updateDevice(selectedDevice.id, deviceData)
+        if (result) {
+          toast.success("Device berhasil diupdate!", { id: loadingToast })
+          await loadDevices()
+          setIsEditDialogOpen(false)
+          setSelectedDevice(null)
+        } else {
+          toast.error("Gagal mengupdate device", { id: loadingToast })
+        }
+      } catch (error) {
+        console.error("Error updating device:", error)
+        toast.error("Terjadi kesalahan saat mengupdate device", { id: loadingToast })
+      }
     }
   }
 
   const handleDeleteDevice = async () => {
     if (selectedDevice) {
-      await deleteDevice(selectedDevice.id)
-      await loadDevices()
-      setIsDeleteDialogOpen(false)
-      setIsDetailDialogOpen(false)
-      setSelectedDevice(null)
+      const loadingToast = toast.loading("Menghapus device...")
+      try {
+        const result = await deleteDevice(selectedDevice.id)
+        if (result) {
+          toast.success("Device berhasil dihapus!", { id: loadingToast })
+          await loadDevices()
+          setIsDeleteDialogOpen(false)
+          setIsDetailDialogOpen(false)
+          setSelectedDevice(null)
+        } else {
+          toast.error("Gagal menghapus device", { id: loadingToast })
+        }
+      } catch (error) {
+        console.error("Error deleting device:", error)
+        toast.error("Terjadi kesalahan saat menghapus device", { id: loadingToast })
+      }
     }
   }
 

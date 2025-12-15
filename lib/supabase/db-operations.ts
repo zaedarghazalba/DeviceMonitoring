@@ -2,8 +2,46 @@
 
 import { createClient } from "./client"
 import { Device, DeviceFilters, KodeItem } from "../types"
+import { Database } from "./database.types"
 
 const supabase = createClient()
+
+// Type for database row
+type DeviceRow = Database['public']['Tables']['devices']['Row']
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Transform database row to app format
+ * This helper eliminates code duplication across all device operations
+ */
+function transformDeviceFromDB(deviceRow: DeviceRow): Device {
+  return {
+    id: deviceRow.id,
+    kodeId: deviceRow.kode_id,
+    jenisBarang: deviceRow.jenis_barang,
+    tanggalBeli: deviceRow.tanggal_beli,
+    garansi: deviceRow.garansi,
+    garansiSampai: deviceRow.garansi_sampai,
+    lokasi: deviceRow.lokasi,
+    devisi: deviceRow.devisi,
+    subDevisi: deviceRow.sub_devisi || '',
+    merk: deviceRow.merk,
+    type: deviceRow.type,
+    snRegModel: deviceRow.sn_reg_model,
+    spesifikasi: deviceRow.spesifikasi || '',
+    gambar: deviceRow.gambar || '',
+    status: deviceRow.status as Device['status'],
+    kondisi: deviceRow.kondisi as Device['kondisi'],
+    akunTerhubung: deviceRow.akun_terhubung || '',
+    keterangan: deviceRow.keterangan || '',
+    dataSource: (deviceRow.data_source as Device['dataSource']) || 'Akselera',
+    tanggalDibuat: deviceRow.created_at,
+    tanggalDiupdate: deviceRow.updated_at,
+  }
+}
 
 // ============================================
 // DEVICE OPERATIONS
@@ -13,82 +51,46 @@ const supabase = createClient()
  * Get all devices from Supabase
  */
 export async function getAllDevices(): Promise<Device[]> {
-  const { data, error } = await supabase
-    .from('devices')
-    .select('*')
-    .order('created_at', { ascending: false })
+  try {
+    const { data, error } = await supabase
+      .from('devices')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching devices:', error)
+    if (error) {
+      console.error('Error fetching devices:', error)
+      throw new Error(`Failed to fetch devices: ${error.message}`)
+    }
+
+    return data.map(transformDeviceFromDB)
+  } catch (error) {
+    console.error('Error in getAllDevices:', error)
     return []
   }
-
-  // Transform database format to app format
-  return data.map((device: any) => ({
-    id: device.id,
-    kodeId: device.kode_id,
-    jenisBarang: device.jenis_barang,
-    tanggalBeli: device.tanggal_beli,
-    garansi: device.garansi,
-    garansiSampai: device.garansi_sampai,
-    lokasi: device.lokasi,
-    devisi: device.devisi,
-    subDevisi: device.sub_devisi || '',
-    merk: device.merk,
-    type: device.type,
-    snRegModel: device.sn_reg_model,
-    spesifikasi: device.spesifikasi || '',
-    gambar: device.gambar || '',
-    status: device.status,
-    kondisi: device.kondisi,
-    akunTerhubung: device.akun_terhubung || '',
-    keterangan: device.keterangan || '',
-    dataSource: device.data_source || 'Akselera',
-    tanggalDibuat: device.created_at,
-    tanggalDiupdate: device.updated_at,
-  }))
 }
 
 /**
  * Get device by ID
  */
 export async function getDeviceById(id: string): Promise<Device | null> {
-  const { data, error } = await supabase
-    .from('devices')
-    .select('*')
-    .eq('id', id)
-    .single()
+  try {
+    const { data, error } = await supabase
+      .from('devices')
+      .select('*')
+      .eq('id', id)
+      .single()
 
-  if (error) {
-    console.error('Error fetching device:', error)
+    if (error) {
+      console.error('Error fetching device:', error)
+      throw new Error(`Failed to fetch device: ${error.message}`)
+    }
+
+    if (!data) return null
+
+    return transformDeviceFromDB(data)
+  } catch (error) {
+    console.error('Error in getDeviceById:', error)
     return null
-  }
-
-  if (!data) return null
-
-  const deviceData: any = data
-  return {
-    id: deviceData.id,
-    kodeId: deviceData.kode_id,
-    jenisBarang: deviceData.jenis_barang,
-    tanggalBeli: deviceData.tanggal_beli,
-    garansi: deviceData.garansi,
-    garansiSampai: deviceData.garansi_sampai,
-    lokasi: deviceData.lokasi,
-    devisi: deviceData.devisi,
-    subDevisi: deviceData.sub_devisi || '',
-    merk: deviceData.merk,
-    type: deviceData.type,
-    snRegModel: deviceData.sn_reg_model,
-    spesifikasi: deviceData.spesifikasi || '',
-    gambar: deviceData.gambar || '',
-    status: deviceData.status,
-    kondisi: deviceData.kondisi,
-    akunTerhubung: deviceData.akun_terhubung || '',
-    keterangan: deviceData.keterangan || '',
-    dataSource: deviceData.data_source || 'Akselera',
-    tanggalDibuat: deviceData.created_at,
-    tanggalDiupdate: deviceData.updated_at,
   }
 }
 
@@ -96,59 +98,41 @@ export async function getDeviceById(id: string): Promise<Device | null> {
  * Add new device
  */
 export async function addDevice(device: Omit<Device, "id" | "tanggalDibuat" | "tanggalDiupdate">): Promise<Device | null> {
-  const { data, error } = await supabase
-    .from('devices')
-    .insert({
-      kode_id: device.kodeId,
-      jenis_barang: device.jenisBarang,
-      tanggal_beli: device.tanggalBeli,
-      garansi: device.garansi,
-      garansi_sampai: device.garansiSampai,
-      lokasi: device.lokasi,
-      devisi: device.devisi,
-      sub_devisi: device.subDevisi || null,
-      merk: device.merk,
-      type: device.type,
-      sn_reg_model: device.snRegModel,
-      spesifikasi: device.spesifikasi || null,
-      gambar: device.gambar || null,
-      status: device.status,
-      kondisi: device.kondisi,
-      akun_terhubung: device.akunTerhubung || null,
-      keterangan: device.keterangan || null,
-      data_source: device.dataSource,
-    })
-    .select()
-    .single()
+  try {
+    const { data, error } = await supabase
+      .from('devices')
+      .insert({
+        kode_id: device.kodeId,
+        jenis_barang: device.jenisBarang,
+        tanggal_beli: device.tanggalBeli,
+        garansi: device.garansi,
+        garansi_sampai: device.garansiSampai,
+        lokasi: device.lokasi,
+        devisi: device.devisi,
+        sub_devisi: device.subDevisi || null,
+        merk: device.merk,
+        type: device.type,
+        sn_reg_model: device.snRegModel,
+        spesifikasi: device.spesifikasi || null,
+        gambar: device.gambar || null,
+        status: device.status,
+        kondisi: device.kondisi,
+        akun_terhubung: device.akunTerhubung || null,
+        keterangan: device.keterangan || null,
+        data_source: device.dataSource,
+      })
+      .select()
+      .single()
 
-  if (error) {
-    console.error('Error adding device:', error)
+    if (error) {
+      console.error('Error adding device:', error)
+      throw new Error(`Failed to add device: ${error.message}`)
+    }
+
+    return transformDeviceFromDB(data)
+  } catch (error) {
+    console.error('Error in addDevice:', error)
     return null
-  }
-
-  const deviceData: any = data
-  return {
-    id: deviceData.id,
-    kodeId: deviceData.kode_id,
-    jenisBarang: deviceData.jenis_barang,
-    tanggalBeli: deviceData.tanggal_beli,
-    garansi: deviceData.garansi,
-    garansiSampai: deviceData.garansi_sampai,
-    lokasi: deviceData.lokasi,
-    devisi: deviceData.devisi,
-    subDevisi: deviceData.sub_devisi || '',
-    merk: deviceData.merk,
-    type: deviceData.type,
-    snRegModel: deviceData.sn_reg_model,
-    spesifikasi: deviceData.spesifikasi || '',
-    gambar: deviceData.gambar || '',
-    status: deviceData.status,
-    kondisi: deviceData.kondisi,
-    akunTerhubung: deviceData.akun_terhubung || '',
-    keterangan: deviceData.keterangan || '',
-    dataSource: deviceData.data_source || 'Akselera',
-    tanggalDibuat: deviceData.created_at,
-    tanggalDiupdate: deviceData.updated_at,
   }
 }
 
@@ -156,62 +140,44 @@ export async function addDevice(device: Omit<Device, "id" | "tanggalDibuat" | "t
  * Update device
  */
 export async function updateDevice(id: string, updates: Partial<Device>): Promise<Device | null> {
-  const updateData: any = {}
+  try {
+    const updateData: Record<string, any> = {}
 
-  if (updates.kodeId) updateData.kode_id = updates.kodeId
-  if (updates.jenisBarang) updateData.jenis_barang = updates.jenisBarang
-  if (updates.tanggalBeli) updateData.tanggal_beli = updates.tanggalBeli
-  if (updates.garansi !== undefined) updateData.garansi = updates.garansi
-  if (updates.garansiSampai) updateData.garansi_sampai = updates.garansiSampai
-  if (updates.lokasi) updateData.lokasi = updates.lokasi
-  if (updates.devisi) updateData.devisi = updates.devisi
-  if (updates.subDevisi !== undefined) updateData.sub_devisi = updates.subDevisi || null
-  if (updates.merk) updateData.merk = updates.merk
-  if (updates.type) updateData.type = updates.type
-  if (updates.snRegModel) updateData.sn_reg_model = updates.snRegModel
-  if (updates.spesifikasi !== undefined) updateData.spesifikasi = updates.spesifikasi || null
-  if (updates.gambar !== undefined) updateData.gambar = updates.gambar || null
-  if (updates.status) updateData.status = updates.status
-  if (updates.kondisi) updateData.kondisi = updates.kondisi
-  if (updates.akunTerhubung !== undefined) updateData.akun_terhubung = updates.akunTerhubung || null
-  if (updates.keterangan !== undefined) updateData.keterangan = updates.keterangan || null
-  if (updates.dataSource) updateData.data_source = updates.dataSource
+    if (updates.kodeId) updateData.kode_id = updates.kodeId
+    if (updates.jenisBarang) updateData.jenis_barang = updates.jenisBarang
+    if (updates.tanggalBeli) updateData.tanggal_beli = updates.tanggalBeli
+    if (updates.garansi !== undefined) updateData.garansi = updates.garansi
+    if (updates.garansiSampai) updateData.garansi_sampai = updates.garansiSampai
+    if (updates.lokasi) updateData.lokasi = updates.lokasi
+    if (updates.devisi) updateData.devisi = updates.devisi
+    if (updates.subDevisi !== undefined) updateData.sub_devisi = updates.subDevisi || null
+    if (updates.merk) updateData.merk = updates.merk
+    if (updates.type) updateData.type = updates.type
+    if (updates.snRegModel) updateData.sn_reg_model = updates.snRegModel
+    if (updates.spesifikasi !== undefined) updateData.spesifikasi = updates.spesifikasi || null
+    if (updates.gambar !== undefined) updateData.gambar = updates.gambar || null
+    if (updates.status) updateData.status = updates.status
+    if (updates.kondisi) updateData.kondisi = updates.kondisi
+    if (updates.akunTerhubung !== undefined) updateData.akun_terhubung = updates.akunTerhubung || null
+    if (updates.keterangan !== undefined) updateData.keterangan = updates.keterangan || null
+    if (updates.dataSource) updateData.data_source = updates.dataSource
 
-  const { data, error } = await supabase
-    .from('devices')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single()
+    const { data, error } = await supabase
+      .from('devices')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
 
-  if (error) {
-    console.error('Error updating device:', error)
+    if (error) {
+      console.error('Error updating device:', error)
+      throw new Error(`Failed to update device: ${error.message}`)
+    }
+
+    return transformDeviceFromDB(data)
+  } catch (error) {
+    console.error('Error in updateDevice:', error)
     return null
-  }
-
-  const deviceData: any = data
-  return {
-    id: deviceData.id,
-    kodeId: deviceData.kode_id,
-    jenisBarang: deviceData.jenis_barang,
-    tanggalBeli: deviceData.tanggal_beli,
-    garansi: deviceData.garansi,
-    garansiSampai: deviceData.garansi_sampai,
-    lokasi: deviceData.lokasi,
-    devisi: deviceData.devisi,
-    subDevisi: deviceData.sub_devisi || '',
-    merk: deviceData.merk,
-    type: deviceData.type,
-    snRegModel: deviceData.sn_reg_model,
-    spesifikasi: deviceData.spesifikasi || '',
-    gambar: deviceData.gambar || '',
-    status: deviceData.status,
-    kondisi: deviceData.kondisi,
-    akunTerhubung: deviceData.akun_terhubung || '',
-    keterangan: deviceData.keterangan || '',
-    dataSource: deviceData.data_source || 'Akselera',
-    tanggalDibuat: deviceData.created_at,
-    tanggalDiupdate: deviceData.updated_at,
   }
 }
 
@@ -219,119 +185,90 @@ export async function updateDevice(id: string, updates: Partial<Device>): Promis
  * Delete device
  */
 export async function deleteDevice(id: string): Promise<boolean> {
-  const { error } = await supabase
-    .from('devices')
-    .delete()
-    .eq('id', id)
+  try {
+    const { error } = await supabase
+      .from('devices')
+      .delete()
+      .eq('id', id)
 
-  if (error) {
-    console.error('Error deleting device:', error)
+    if (error) {
+      console.error('Error deleting device:', error)
+      throw new Error(`Failed to delete device: ${error.message}`)
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error in deleteDevice:', error)
     return false
   }
-
-  return true
 }
 
 /**
  * Search devices
  */
 export async function searchDevices(query: string): Promise<Device[]> {
-  if (!query.trim()) {
-    return getAllDevices()
-  }
+  try {
+    if (!query.trim()) {
+      return getAllDevices()
+    }
 
-  const lowerQuery = query.toLowerCase().trim()
+    const lowerQuery = query.toLowerCase().trim()
 
-  const { data, error } = await supabase
-    .from('devices')
-    .select('*')
-    .or(`kode_id.ilike.%${lowerQuery}%,jenis_barang.ilike.%${lowerQuery}%,merk.ilike.%${lowerQuery}%,type.ilike.%${lowerQuery}%,sn_reg_model.ilike.%${lowerQuery}%,sub_devisi.ilike.%${lowerQuery}%,devisi.ilike.%${lowerQuery}%,spesifikasi.ilike.%${lowerQuery}%,lokasi.ilike.%${lowerQuery}%,akun_terhubung.ilike.%${lowerQuery}%`)
-    .order('created_at', { ascending: false })
+    const { data, error } = await supabase
+      .from('devices')
+      .select('*')
+      .or(`kode_id.ilike.%${lowerQuery}%,jenis_barang.ilike.%${lowerQuery}%,merk.ilike.%${lowerQuery}%,type.ilike.%${lowerQuery}%,sn_reg_model.ilike.%${lowerQuery}%,sub_devisi.ilike.%${lowerQuery}%,devisi.ilike.%${lowerQuery}%,spesifikasi.ilike.%${lowerQuery}%,lokasi.ilike.%${lowerQuery}%,akun_terhubung.ilike.%${lowerQuery}%`)
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error('Error searching devices:', error)
+    if (error) {
+      console.error('Error searching devices:', error)
+      throw new Error(`Failed to search devices: ${error.message}`)
+    }
+
+    return data.map(transformDeviceFromDB)
+  } catch (error) {
+    console.error('Error in searchDevices:', error)
     return []
   }
-
-  return data.map((device: any) => ({
-    id: device.id,
-    kodeId: device.kode_id,
-    jenisBarang: device.jenis_barang,
-    tanggalBeli: device.tanggal_beli,
-    garansi: device.garansi,
-    garansiSampai: device.garansi_sampai,
-    lokasi: device.lokasi,
-    devisi: device.devisi,
-    subDevisi: device.sub_devisi || '',
-    merk: device.merk,
-    type: device.type,
-    snRegModel: device.sn_reg_model,
-    spesifikasi: device.spesifikasi || '',
-    gambar: device.gambar || '',
-    status: device.status,
-    kondisi: device.kondisi,
-    akunTerhubung: device.akun_terhubung || '',
-    keterangan: device.keterangan || '',
-    dataSource: device.data_source || 'Akselera',
-    tanggalDibuat: device.created_at,
-    tanggalDiupdate: device.updated_at,
-  }))
 }
 
 /**
  * Filter devices
  */
 export async function filterDevices(filters: DeviceFilters): Promise<Device[]> {
-  let query: any = supabase.from('devices').select('*')
+  try {
+    let query = supabase.from('devices').select('*')
 
-  if (filters.kondisi && filters.kondisi !== "all") {
-    query = query.eq('kondisi', filters.kondisi)
-  }
-  if (filters.devisi && filters.devisi !== "all") {
-    query = query.eq('devisi', filters.devisi)
-  }
-  if (filters.jenisBarang && filters.jenisBarang !== "all") {
-    query = query.eq('jenis_barang', filters.jenisBarang)
-  }
-  if (filters.status && filters.status !== "all") {
-    query = query.eq('status', filters.status)
-  }
-  if (filters.dataSource && filters.dataSource !== "all") {
-    query = query.eq('data_source', filters.dataSource)
-  }
+    if (filters.kondisi && filters.kondisi !== "all") {
+      query = query.eq('kondisi', filters.kondisi as any)
+    }
+    if (filters.devisi && filters.devisi !== "all") {
+      query = query.eq('devisi', filters.devisi as any)
+    }
+    if (filters.jenisBarang && filters.jenisBarang !== "all") {
+      query = query.eq('jenis_barang', filters.jenisBarang as any)
+    }
+    if (filters.status && filters.status !== "all") {
+      query = query.eq('status', filters.status as any)
+    }
+    if (filters.dataSource && filters.dataSource !== "all") {
+      query = query.eq('data_source', filters.dataSource as any)
+    }
 
-  query = query.order('created_at', { ascending: false })
+    query = query.order('created_at', { ascending: false })
 
-  const { data, error } = await query
+    const { data, error } = await query
 
-  if (error) {
-    console.error('Error filtering devices:', error)
+    if (error) {
+      console.error('Error filtering devices:', error)
+      throw new Error(`Failed to filter devices: ${error.message}`)
+    }
+
+    return data.map(transformDeviceFromDB)
+  } catch (error) {
+    console.error('Error in filterDevices:', error)
     return []
   }
-
-  return data.map((device: any) => ({
-    id: device.id,
-    kodeId: device.kode_id,
-    jenisBarang: device.jenis_barang,
-    tanggalBeli: device.tanggal_beli,
-    garansi: device.garansi,
-    garansiSampai: device.garansi_sampai,
-    lokasi: device.lokasi,
-    devisi: device.devisi,
-    subDevisi: device.sub_devisi || '',
-    merk: device.merk,
-    type: device.type,
-    snRegModel: device.sn_reg_model,
-    spesifikasi: device.spesifikasi || '',
-    gambar: device.gambar || '',
-    status: device.status,
-    kondisi: device.kondisi,
-    akunTerhubung: device.akun_terhubung || '',
-    keterangan: device.keterangan || '',
-    dataSource: device.data_source || 'Akselera',
-    tanggalDibuat: device.created_at,
-    tanggalDiupdate: device.updated_at,
-  }))
 }
 
 /**

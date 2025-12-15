@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           akun_terhubung: string | null
           created_at: string
+          data_source: Database["public"]["Enums"]["data_source_type"]
           devisi: string
           gambar: string | null
           garansi: number
@@ -35,6 +36,7 @@ export type Database = {
         Insert: {
           akun_terhubung?: string | null
           created_at?: string
+          data_source?: Database["public"]["Enums"]["data_source_type"]
           devisi: string
           gambar?: string | null
           garansi?: number
@@ -57,6 +59,7 @@ export type Database = {
         Update: {
           akun_terhubung?: string | null
           created_at?: string
+          data_source?: Database["public"]["Enums"]["data_source_type"]
           devisi?: string
           gambar?: string | null
           garansi?: number
@@ -128,6 +131,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      data_source_type: "Akselera" | "Eduprima"
       device_kondisi: "Baik" | "Rusak" | "Dalam Perbaikan" | "Tidak Terpakai"
       device_status:
         | "Aktif"

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Device, DeviceKondisi, DeviceStatus, DataSource, KodeItem } from "@/lib/types"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -8,7 +8,10 @@ import { Label } from "./ui/label"
 import { Select } from "./ui/select"
 import { Textarea } from "./ui/textarea"
 import { getAllKodeItems, getAllDivisi, generateKodeId } from "@/lib/supabase/db-operations"
-import { Loader2, Image as ImageIcon, X, Check } from "lucide-react"
+import { Loader2, Image as ImageIcon, X, Check, Save } from "lucide-react"
+
+// LocalStorage key for auto-save
+const AUTOSAVE_KEY = "device_form_draft"
 
 interface DeviceFormProps {
   device?: Device
@@ -43,6 +46,12 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
   const [selectedKodeItem, setSelectedKodeItem] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)
+
+  // Auto-save state
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const isInitialMount = useRef(true)
 
   const [imagePreview, setImagePreview] = useState<string>(device?.gambar || "")
   const [formData, setFormData] = useState<FormDataType>({
@@ -87,6 +96,64 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
     }
     loadData()
   }, [])
+
+  // Restore saved draft on mount (only for new devices, not editing)
+  useEffect(() => {
+    if (!device && isInitialMount.current) {
+      try {
+        const saved = localStorage.getItem(AUTOSAVE_KEY)
+        if (saved) {
+          const parsedData = JSON.parse(saved)
+          setFormData(parsedData.formData)
+          if (parsedData.imagePreview) {
+            setImagePreview(parsedData.imagePreview)
+          }
+          setLastSaved(new Date(parsedData.timestamp))
+        }
+      } catch (error) {
+        console.error('Error restoring auto-saved data:', error)
+      }
+      isInitialMount.current = false
+    }
+  }, [device])
+
+  // Auto-save formData to localStorage with debouncing
+  useEffect(() => {
+    // Skip auto-save for edit mode or initial mount
+    if (device || isInitialMount.current) {
+      return
+    }
+
+    // Clear any existing timer
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+    }
+
+    // Set new timer for debounced save
+    saveTimerRef.current = setTimeout(() => {
+      setIsSaving(true)
+      try {
+        const dataToSave = {
+          formData,
+          imagePreview,
+          timestamp: new Date().toISOString()
+        }
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(dataToSave))
+        setLastSaved(new Date())
+      } catch (error) {
+        console.error('Error auto-saving data:', error)
+      } finally {
+        setIsSaving(false)
+      }
+    }, 2000) // Save after 2 seconds of inactivity
+
+    // Cleanup timer on unmount
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current)
+      }
+    }
+  }, [formData, imagePreview, device])
 
   // Auto-generate Kode ID when jenisBarang or tanggalBeli changes (only for new device)
   useEffect(() => {
@@ -254,10 +321,43 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       setIsSubmitting(true)
       try {
         await onSubmit(formData)
+        // Clear auto-saved draft after successful submit
+        if (!device) {
+          localStorage.removeItem(AUTOSAVE_KEY)
+          setLastSaved(null)
+        }
       } finally {
         setIsSubmitting(false)
       }
     }
+  }
+
+  const clearDraft = () => {
+    localStorage.removeItem(AUTOSAVE_KEY)
+    setLastSaved(null)
+    // Reset form to initial state
+    setFormData({
+      kodeId: "",
+      jenisBarang: "",
+      tanggalBeli: "",
+      garansi: 0,
+      garansiSampai: "",
+      lokasi: "",
+      devisi: "",
+      subDevisi: "",
+      merk: "",
+      type: "",
+      snRegModel: "",
+      spesifikasi: "",
+      gambar: "",
+      status: "Aktif",
+      kondisi: "Baik",
+      akunTerhubung: "",
+      keterangan: "",
+      dataSource: "Akselera",
+    })
+    setImagePreview("")
+    setSelectedKodeItem("")
   }
 
   if (isLoadingData) {
@@ -271,6 +371,44 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+      {/* Auto-save indicator - only for new devices */}
+      {!device && (
+        <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-center gap-2 text-sm">
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
+                <span className="text-blue-700 dark:text-blue-300">Menyimpan draft...</span>
+              </>
+            ) : lastSaved ? (
+              <>
+                <Save className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span className="text-slate-700 dark:text-slate-300">
+                  Draft tersimpan otomatis {new Date(lastSaved).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                <span className="text-slate-600 dark:text-slate-400">Data akan tersimpan otomatis</span>
+              </>
+            )}
+          </div>
+          {lastSaved && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={clearDraft}
+              className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
+            >
+              <X className="w-3 h-3 mr-1" />
+              Hapus Draft
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Main Information Section */}
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">

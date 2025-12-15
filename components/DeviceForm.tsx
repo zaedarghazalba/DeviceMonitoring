@@ -38,13 +38,11 @@ const dataSourceOptions: DataSource[] = [
 type FormDataType = Omit<Device, "id" | "tanggalDibuat" | "tanggalDiupdate">
 
 export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
-  const AUTOSAVE_KEY = 'device_form_autosave'
   const [kodeItems, setKodeItems] = useState<KodeItem[]>([])
   const [divisiList, setDivisiList] = useState<string[]>([])
   const [selectedKodeItem, setSelectedKodeItem] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)
-  const [isAutoSaved, setIsAutoSaved] = useState(false)
 
   const [imagePreview, setImagePreview] = useState<string>(device?.gambar || "")
   const [formData, setFormData] = useState<FormDataType>({
@@ -69,55 +67,6 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
-
-  // Restore saved data from localStorage on mount (only for new devices)
-  useEffect(() => {
-    if (!device) {
-      try {
-        const saved = localStorage.getItem(AUTOSAVE_KEY)
-        if (saved) {
-          const savedData = JSON.parse(saved)
-          setFormData(savedData)
-          if (savedData.gambar) {
-            setImagePreview(savedData.gambar)
-          }
-        }
-      } catch (error) {
-        console.error('Error restoring saved data:', error)
-        localStorage.removeItem(AUTOSAVE_KEY)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Only run once on mount
-
-  // Auto-save form data to localStorage (only for new devices, not when editing)
-  useEffect(() => {
-    if (!device) {
-      const saveTimer = setTimeout(() => {
-        try {
-          localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(formData))
-          setIsAutoSaved(true)
-        } catch (error) {
-          console.error('Error saving data:', error)
-        }
-      }, 1000)
-
-      return () => {
-        clearTimeout(saveTimer)
-      }
-    }
-  }, [formData, device])
-
-  // Hide auto-save indicator after 2 seconds
-  useEffect(() => {
-    if (isAutoSaved) {
-      const hideTimer = setTimeout(() => {
-        setIsAutoSaved(false)
-      }, 2000)
-
-      return () => clearTimeout(hideTimer)
-    }
-  }, [isAutoSaved])
 
   // Load kode items and divisi from Supabase on mount
   useEffect(() => {
@@ -305,43 +254,9 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       setIsSubmitting(true)
       try {
         await onSubmit(formData)
-        // Clear auto-saved data after successful submission (only for new devices)
-        if (!device && typeof window !== 'undefined') {
-          localStorage.removeItem(AUTOSAVE_KEY)
-        }
       } finally {
         setIsSubmitting(false)
       }
-    }
-  }
-
-  // Function to clear auto-saved data
-  const clearAutoSave = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(AUTOSAVE_KEY)
-      // Reset form to default values
-      setFormData({
-        kodeId: "",
-        jenisBarang: "",
-        tanggalBeli: "",
-        garansi: 0,
-        garansiSampai: "",
-        lokasi: "",
-        devisi: "",
-        subDevisi: "",
-        merk: "",
-        type: "",
-        snRegModel: "",
-        spesifikasi: "",
-        gambar: "",
-        status: "Aktif" as DeviceStatus,
-        kondisi: "Baik" as DeviceKondisi,
-        akunTerhubung: "",
-        keterangan: "",
-        dataSource: "Akselera" as DataSource,
-      })
-      setImagePreview("")
-      setSelectedKodeItem("")
     }
   }
 
@@ -356,41 +271,6 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      {/* Auto-save indicator - only show when adding new device */}
-      {!device && (
-        <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <div className="flex items-center gap-2">
-            {isAutoSaved ? (
-              <>
-                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-                <span className="text-xs sm:text-sm text-green-700 dark:text-green-300 font-medium">
-                  Data otomatis tersimpan
-                </span>
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="text-xs sm:text-sm text-blue-700 dark:text-blue-300">
-                  Data akan tersimpan otomatis
-                </span>
-              </>
-            )}
-          </div>
-          <Button
-            type="button"
-            onClick={clearAutoSave}
-            variant="ghost"
-            size="sm"
-            className="text-xs h-7 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-          >
-            <X className="w-3 h-3 mr-1" />
-            Hapus Data Tersimpan
-          </Button>
-        </div>
-      )}
-
       {/* Main Information Section */}
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">

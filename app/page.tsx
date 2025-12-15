@@ -62,26 +62,7 @@ export default function Home() {
   const { user, signOut, loading } = useAuth()
   const router = useRouter()
 
-  // Authentication Guard
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    }
-  }, [user, loading, router])
-
-  // Show loading while checking auth
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    )
-  }
-
-  // Don't render if not authenticated
-  if (!user) {
-    return null
-  }
+  // State declarations - MUST be before any conditional returns
   const [devices, setDevices] = useState<Device[]>([])
   const [filteredDevices, setFilteredDevices] = useState<Device[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -111,6 +92,13 @@ export default function Home() {
   const [uniqueDevisi, setUniqueDevisi] = useState<string[]>([])
   const [uniqueJenisBarang, setUniqueJenisBarang] = useState<string[]>([])
 
+  // Authentication Guard
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
   // Load devices on mount
   useEffect(() => {
     loadDevices()
@@ -125,6 +113,20 @@ export default function Home() {
   useEffect(() => {
     applyFiltersAndSearch()
   }, [searchQuery, filters])
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  // Don't render if not authenticated
+  if (!user) {
+    return null
+  }
 
   const loadDevices = async () => {
     setIsLoadingDevices(true)

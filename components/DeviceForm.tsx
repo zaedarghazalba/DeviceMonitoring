@@ -72,36 +72,52 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
 
   // Restore saved data from localStorage on mount (only for new devices)
   useEffect(() => {
-    if (!device && typeof window !== 'undefined') {
-      const saved = localStorage.getItem(AUTOSAVE_KEY)
-      if (saved) {
-        try {
+    if (!device) {
+      try {
+        const saved = localStorage.getItem(AUTOSAVE_KEY)
+        if (saved) {
           const savedData = JSON.parse(saved)
           setFormData(savedData)
           if (savedData.gambar) {
             setImagePreview(savedData.gambar)
           }
-        } catch (error) {
-          console.error('Error restoring saved data:', error)
         }
+      } catch (error) {
+        console.error('Error restoring saved data:', error)
+        localStorage.removeItem(AUTOSAVE_KEY)
       }
     }
-  }, [device]) // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only run once on mount
 
   // Auto-save form data to localStorage (only for new devices, not when editing)
   useEffect(() => {
-    if (!device && typeof window !== 'undefined') {
-      const timer = setTimeout(() => {
-        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(formData))
-        setIsAutoSaved(true)
-        // Hide indicator after 2s
-        const hideTimer = setTimeout(() => setIsAutoSaved(false), 2000)
-        return () => clearTimeout(hideTimer)
-      }, 1000) // Debounce: save after 1 second of no changes
+    if (!device) {
+      const saveTimer = setTimeout(() => {
+        try {
+          localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(formData))
+          setIsAutoSaved(true)
+        } catch (error) {
+          console.error('Error saving data:', error)
+        }
+      }, 1000)
 
-      return () => clearTimeout(timer)
+      return () => {
+        clearTimeout(saveTimer)
+      }
     }
   }, [formData, device])
+
+  // Hide auto-save indicator after 2 seconds
+  useEffect(() => {
+    if (isAutoSaved) {
+      const hideTimer = setTimeout(() => {
+        setIsAutoSaved(false)
+      }, 2000)
+
+      return () => clearTimeout(hideTimer)
+    }
+  }, [isAutoSaved])
 
   // Load kode items and divisi from Supabase on mount
   useEffect(() => {

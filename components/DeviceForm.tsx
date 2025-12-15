@@ -35,36 +35,111 @@ const dataSourceOptions: DataSource[] = [
   "Eduprima",
 ]
 
+type FormDataType = Omit<Device, "id" | "tanggalDibuat" | "tanggalDiupdate">
+
 export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
+  const AUTOSAVE_KEY = 'device_form_autosave'
   const [kodeItems, setKodeItems] = useState<KodeItem[]>([])
   const [divisiList, setDivisiList] = useState<string[]>([])
   const [selectedKodeItem, setSelectedKodeItem] = useState("")
-  const [imagePreview, setImagePreview] = useState<string>(device?.gambar || "")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)
+  const [isAutoSaved, setIsAutoSaved] = useState(false)
 
-  const [formData, setFormData] = useState({
-    kodeId: device?.kodeId || "",
-    jenisBarang: device?.jenisBarang || "",
-    tanggalBeli: device?.tanggalBeli || "",
-    garansi: device?.garansi || 0,
-    garansiSampai: device?.garansiSampai || "",
-    lokasi: device?.lokasi || "",
-    devisi: device?.devisi || "",
-    subDevisi: device?.subDevisi || "",
-    merk: device?.merk || "",
-    type: device?.type || "",
-    snRegModel: device?.snRegModel || "",
-    spesifikasi: device?.spesifikasi || "",
-    gambar: device?.gambar || "",
-    status: device?.status || ("Aktif" as DeviceStatus),
-    kondisi: device?.kondisi || ("Baik" as DeviceKondisi),
-    akunTerhubung: device?.akunTerhubung || "",
-    keterangan: device?.keterangan || "",
-    dataSource: device?.dataSource || ("Akselera" as DataSource),
+  // Initialize imagePreview - restore from saved data if available
+  const [imagePreview, setImagePreview] = useState<string>(() => {
+    if (device) return device.gambar || ""
+
+    // Try to restore from localStorage for new device
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(AUTOSAVE_KEY)
+      if (saved) {
+        try {
+          const data = JSON.parse(saved)
+          return data.gambar || ""
+        } catch {
+          return ""
+        }
+      }
+    }
+    return ""
+  })
+
+  // Initialize formData with device prop, or restore from localStorage if adding new device
+  const [formData, setFormData] = useState(() => {
+    // If editing existing device, use device data
+    if (device) {
+      return {
+        kodeId: device.kodeId,
+        jenisBarang: device.jenisBarang,
+        tanggalBeli: device.tanggalBeli,
+        garansi: device.garansi,
+        garansiSampai: device.garansiSampai,
+        lokasi: device.lokasi,
+        devisi: device.devisi,
+        subDevisi: device.subDevisi,
+        merk: device.merk,
+        type: device.type,
+        snRegModel: device.snRegModel,
+        spesifikasi: device.spesifikasi,
+        gambar: device.gambar,
+        status: device.status,
+        kondisi: device.kondisi,
+        akunTerhubung: device.akunTerhubung,
+        keterangan: device.keterangan,
+        dataSource: device.dataSource,
+      }
+    }
+
+    // If adding new device, try to restore from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(AUTOSAVE_KEY)
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch {
+          // If parsing fails, use default values
+        }
+      }
+    }
+
+    // Default values for new device
+    return {
+      kodeId: "",
+      jenisBarang: "",
+      tanggalBeli: "",
+      garansi: 0,
+      garansiSampai: "",
+      lokasi: "",
+      devisi: "",
+      subDevisi: "",
+      merk: "",
+      type: "",
+      snRegModel: "",
+      spesifikasi: "",
+      gambar: "",
+      status: "Aktif" as DeviceStatus,
+      kondisi: "Baik" as DeviceKondisi,
+      akunTerhubung: "",
+      keterangan: "",
+      dataSource: "Akselera" as DataSource,
+    }
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Auto-save form data to localStorage (only for new devices, not when editing)
+  useEffect(() => {
+    if (!device && typeof window !== 'undefined') {
+      const timer = setTimeout(() => {
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(formData))
+        setIsAutoSaved(true)
+        setTimeout(() => setIsAutoSaved(false), 2000) // Hide indicator after 2s
+      }, 1000) // Debounce: save after 1 second of no changes
+
+      return () => clearTimeout(timer)
+    }
+  }, [formData, device])
 
   // Load kode items and divisi from Supabase on mount
   useEffect(() => {
@@ -92,7 +167,7 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       const generateKode = async () => {
         try {
           const newKodeId = await generateKodeId(selectedKodeItem, formData.tanggalBeli)
-          setFormData(prev => ({
+          setFormData((prev: FormDataType) => ({
             ...prev,
             kodeId: newKodeId
           }))
@@ -110,7 +185,7 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       const tanggalBeli = new Date(formData.tanggalBeli)
       const garansiSampai = new Date(tanggalBeli)
       garansiSampai.setMonth(garansiSampai.getMonth() + formData.garansi)
-      setFormData(prev => ({
+      setFormData((prev: FormDataType) => ({
         ...prev,
         garansiSampai: garansiSampai.toISOString().split('T')[0]
       }))
@@ -121,7 +196,7 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
+    setFormData((prev: FormDataType) => ({
       ...prev,
       [name]: name === "garansi" ? Number(value) : value,
     }))
@@ -137,7 +212,7 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
 
     if (kodeItem) {
       setSelectedKodeItem(kodeItem.kode)
-      setFormData(prev => ({
+      setFormData((prev: FormDataType) => ({
         ...prev,
         jenisBarang: selectedNama
       }))
@@ -154,13 +229,13 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      setErrors(prev => ({ ...prev, gambar: "File harus berupa gambar" }))
+      setErrors((prev) => ({ ...prev, gambar: "File harus berupa gambar" }))
       return
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setErrors(prev => ({ ...prev, gambar: "Ukuran gambar maksimal 10MB" }))
+      setErrors((prev) => ({ ...prev, gambar: "Ukuran gambar maksimal 10MB" }))
       return
     }
 
@@ -168,18 +243,18 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
     const reader = new FileReader()
     reader.onloadend = () => {
       const base64String = reader.result as string
-      setFormData(prev => ({
+      setFormData((prev: FormDataType) => ({
         ...prev,
         gambar: base64String
       }))
       setImagePreview(base64String)
-      setErrors(prev => ({ ...prev, gambar: "" }))
+      setErrors((prev) => ({ ...prev, gambar: "" }))
     }
     reader.readAsDataURL(file)
   }
 
   const handleRemoveImage = () => {
-    setFormData(prev => ({
+    setFormData((prev: FormDataType) => ({
       ...prev,
       gambar: ""
     }))
@@ -252,9 +327,43 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       setIsSubmitting(true)
       try {
         await onSubmit(formData)
+        // Clear auto-saved data after successful submission (only for new devices)
+        if (!device && typeof window !== 'undefined') {
+          localStorage.removeItem(AUTOSAVE_KEY)
+        }
       } finally {
         setIsSubmitting(false)
       }
+    }
+  }
+
+  // Function to clear auto-saved data
+  const clearAutoSave = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(AUTOSAVE_KEY)
+      // Reset form to default values
+      setFormData({
+        kodeId: "",
+        jenisBarang: "",
+        tanggalBeli: "",
+        garansi: 0,
+        garansiSampai: "",
+        lokasi: "",
+        devisi: "",
+        subDevisi: "",
+        merk: "",
+        type: "",
+        snRegModel: "",
+        spesifikasi: "",
+        gambar: "",
+        status: "Aktif" as DeviceStatus,
+        kondisi: "Baik" as DeviceKondisi,
+        akunTerhubung: "",
+        keterangan: "",
+        dataSource: "Akselera" as DataSource,
+      })
+      setImagePreview("")
+      setSelectedKodeItem("")
     }
   }
 
@@ -269,6 +378,41 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+      {/* Auto-save indicator - only show when adding new device */}
+      {!device && (
+        <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-center gap-2">
+            {isAutoSaved ? (
+              <>
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span className="text-xs sm:text-sm text-green-700 dark:text-green-300 font-medium">
+                  Data otomatis tersimpan
+                </span>
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="text-xs sm:text-sm text-blue-700 dark:text-blue-300">
+                  Data akan tersimpan otomatis
+                </span>
+              </>
+            )}
+          </div>
+          <Button
+            type="button"
+            onClick={clearAutoSave}
+            variant="ghost"
+            size="sm"
+            className="text-xs h-7 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+          >
+            <X className="w-3 h-3 mr-1" />
+            Hapus Data Tersimpan
+          </Button>
+        </div>
+      )}
+
       {/* Main Information Section */}
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700">

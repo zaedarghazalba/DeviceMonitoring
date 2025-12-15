@@ -34,10 +34,13 @@ yarn-error.log*
 next-env.d.ts
 
 # claude code settings
-.claude/settings.local.json
+.claude/
 
 # mcp configuration (if it contains sensitive info)
 .mcp.json
 
 # temporary files
 nul
+
+# documentation not needed in repo
+MOBILE_RESPONSIVE_IMPROVEMENTS.md

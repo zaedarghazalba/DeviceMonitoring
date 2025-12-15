@@ -46,87 +46,47 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isAutoSaved, setIsAutoSaved] = useState(false)
 
-  // Initialize imagePreview - restore from saved data if available
-  const [imagePreview, setImagePreview] = useState<string>(() => {
-    if (device) return device.gambar || ""
-
-    // Try to restore from localStorage for new device
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(AUTOSAVE_KEY)
-      if (saved) {
-        try {
-          const data = JSON.parse(saved)
-          return data.gambar || ""
-        } catch {
-          return ""
-        }
-      }
-    }
-    return ""
-  })
-
-  // Initialize formData with device prop, or restore from localStorage if adding new device
-  const [formData, setFormData] = useState(() => {
-    // If editing existing device, use device data
-    if (device) {
-      return {
-        kodeId: device.kodeId,
-        jenisBarang: device.jenisBarang,
-        tanggalBeli: device.tanggalBeli,
-        garansi: device.garansi,
-        garansiSampai: device.garansiSampai,
-        lokasi: device.lokasi,
-        devisi: device.devisi,
-        subDevisi: device.subDevisi,
-        merk: device.merk,
-        type: device.type,
-        snRegModel: device.snRegModel,
-        spesifikasi: device.spesifikasi,
-        gambar: device.gambar,
-        status: device.status,
-        kondisi: device.kondisi,
-        akunTerhubung: device.akunTerhubung,
-        keterangan: device.keterangan,
-        dataSource: device.dataSource,
-      }
-    }
-
-    // If adding new device, try to restore from localStorage
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(AUTOSAVE_KEY)
-      if (saved) {
-        try {
-          return JSON.parse(saved)
-        } catch {
-          // If parsing fails, use default values
-        }
-      }
-    }
-
-    // Default values for new device
-    return {
-      kodeId: "",
-      jenisBarang: "",
-      tanggalBeli: "",
-      garansi: 0,
-      garansiSampai: "",
-      lokasi: "",
-      devisi: "",
-      subDevisi: "",
-      merk: "",
-      type: "",
-      snRegModel: "",
-      spesifikasi: "",
-      gambar: "",
-      status: "Aktif" as DeviceStatus,
-      kondisi: "Baik" as DeviceKondisi,
-      akunTerhubung: "",
-      keterangan: "",
-      dataSource: "Akselera" as DataSource,
-    }
+  const [imagePreview, setImagePreview] = useState<string>(device?.gambar || "")
+  const [formData, setFormData] = useState<FormDataType>({
+    kodeId: device?.kodeId || "",
+    jenisBarang: device?.jenisBarang || "",
+    tanggalBeli: device?.tanggalBeli || "",
+    garansi: device?.garansi || 0,
+    garansiSampai: device?.garansiSampai || "",
+    lokasi: device?.lokasi || "",
+    devisi: device?.devisi || "",
+    subDevisi: device?.subDevisi || "",
+    merk: device?.merk || "",
+    type: device?.type || "",
+    snRegModel: device?.snRegModel || "",
+    spesifikasi: device?.spesifikasi || "",
+    gambar: device?.gambar || "",
+    status: device?.status || "Aktif",
+    kondisi: device?.kondisi || "Baik",
+    akunTerhubung: device?.akunTerhubung || "",
+    keterangan: device?.keterangan || "",
+    dataSource: device?.dataSource || "Akselera",
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Restore saved data from localStorage on mount (only for new devices)
+  useEffect(() => {
+    if (!device && typeof window !== 'undefined') {
+      const saved = localStorage.getItem(AUTOSAVE_KEY)
+      if (saved) {
+        try {
+          const savedData = JSON.parse(saved)
+          setFormData(savedData)
+          if (savedData.gambar) {
+            setImagePreview(savedData.gambar)
+          }
+        } catch (error) {
+          console.error('Error restoring saved data:', error)
+        }
+      }
+    }
+  }, [device]) // Only run on mount
 
   // Auto-save form data to localStorage (only for new devices, not when editing)
   useEffect(() => {
@@ -134,7 +94,9 @@ export function DeviceForm({ device, onSubmit, onCancel }: DeviceFormProps) {
       const timer = setTimeout(() => {
         localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(formData))
         setIsAutoSaved(true)
-        setTimeout(() => setIsAutoSaved(false), 2000) // Hide indicator after 2s
+        // Hide indicator after 2s
+        const hideTimer = setTimeout(() => setIsAutoSaved(false), 2000)
+        return () => clearTimeout(hideTimer)
       }, 1000) // Debounce: save after 1 second of no changes
 
       return () => clearTimeout(timer)

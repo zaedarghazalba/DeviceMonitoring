@@ -92,42 +92,7 @@ export default function Home() {
   const [uniqueDevisi, setUniqueDevisi] = useState<string[]>([])
   const [uniqueJenisBarang, setUniqueJenisBarang] = useState<string[]>([])
 
-  // Authentication Guard
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    }
-  }, [user, loading, router])
-
-  // Load devices on mount
-  useEffect(() => {
-    loadDevices()
-  }, [])
-
-  // Load unique values for filters
-  useEffect(() => {
-    loadUniqueValues()
-  }, [devices])
-
-  // Apply filters and search whenever they change
-  useEffect(() => {
-    applyFiltersAndSearch()
-  }, [searchQuery, filters])
-
-  // Show loading while checking auth
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    )
-  }
-
-  // Don't render if not authenticated
-  if (!user) {
-    return null
-  }
-
+  // Function definitions - MUST be before useEffect hooks that call them
   const loadDevices = async () => {
     setIsLoadingDevices(true)
     try {
@@ -193,6 +158,42 @@ export default function Home() {
     } finally {
       setIsApplyingFilters(false)
     }
+  }
+
+  // Authentication Guard
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
+  // Load devices on mount
+  useEffect(() => {
+    loadDevices()
+  }, [])
+
+  // Load unique values for filters
+  useEffect(() => {
+    loadUniqueValues()
+  }, [devices])
+
+  // Apply filters and search whenever they change
+  useEffect(() => {
+    applyFiltersAndSearch()
+  }, [searchQuery, filters])
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  // Don't render if not authenticated
+  if (!user) {
+    return null
   }
 
   const handleAddDevice = async (deviceData: Omit<Device, "id" | "tanggalDibuat" | "tanggalDiupdate">) => {
